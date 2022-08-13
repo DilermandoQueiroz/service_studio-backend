@@ -1,9 +1,7 @@
-from enum import unique
 from sqlalchemy import Boolean, Column, Integer, VARCHAR, CHAR, DECIMAL, DATE, TIMESTAMP, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from database import Base
-
 
 class Studio(Base):
     __tablename__ = "studio"
@@ -43,7 +41,7 @@ class ServiceProvider(Base):
     email = Column(VARCHAR(50), nullable=True)
     phone_number = Column(VARCHAR(20), nullable=True)
     signal = Column(DECIMAL, nullable=True)
-    description = Column(VARCHAR(255), nullable=True)
+    deszcription = Column(VARCHAR(255), nullable=True)
 
 
 class Client(Base):
@@ -81,7 +79,7 @@ class Sell(Base):
     service_provider_rate = Column(Integer, nullable=False)
     client_suggestion_desc = Column(VARCHAR(140), nullable=True)
     client_satisfied = Column(Boolean, nullable=False)
-    number_of_sessions = Column(Integer(2), nullable=True)
+    number_of_sessions = Column(Integer, nullable=True)
     client_contract_confirmed = Column(Boolean, nullable=False)
     service_provider_contract_confirmed = Column(Boolean, nullable=False)
     start_time = Column(TIMESTAMP, nullable=False)
@@ -109,7 +107,7 @@ class ServiceTender(Base):
     __tablename__ = "service_tender"
 
     id = Column(Integer, primary_key=True, index=True)
-    signal = Column(DECIMAL(10), nullable=True)
+    signal = Column(DECIMAL, nullable=True)
     body_local = Column(VARCHAR(15), nullable=True)
     price = Column(DECIMAL, nullable=True)
     photo = Column(VARCHAR, nullable=True)
