@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import models, schemas
 
 def get_user(db: Session):
-    return db.query(models.Client).all()
+    return db.query(models.ServiceProvider).all()
 
 # def get_user(db: Session, user_id: int):
 #     return db.query(models.User).filter(models.User.id == user_id).first()

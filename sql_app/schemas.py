@@ -1,15 +1,20 @@
+from decimal import Decimal
 from typing import List, Union
 
 from pydantic import BaseModel
 
 
 class ServiceProvider(BaseModel):
+    id: Decimal
     name: str
     display_name: str
     cpf: str
     email: Union[str, None] = None 
     phone_number: Union[str, None] = None
+    signal: Union[int, None] = None
     description: Union[str, None] = None
+    class Config:
+        orm_mode = True
     
 
 class Client(BaseModel):
