@@ -30,37 +30,66 @@ def get_db():
     finally:
         db.close()
 
+@app.post("/provider/create", response_model = schemas.ServiceProvider)
+def create_service_provider(service_provider: schemas.ServiceProvider, db: Session = Depends(get_db)):
+    db_service_provider_cpf = crud.get_service_provider_by_cpf(db=db, cpf=service_provider.cpf)
+    db_service_provider_name = crud.get_service_provider_by_name(db=db, name=service_provider.name)
+    
+    if db_service_provider_name:
+        raise HTTPException(status_code=400, detail="Name already registered")
+    elif db_service_provider_cpf:
+        raise HTTPException(status_code=400, detail="Cpf already registered")
 
-# @app.post("/users/", response_model=schemas.User)
-# def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-#     db_user = crud.get_user_by_email(db, email=user.email)
-#     if db_user:
-#         raise HTTPException(status_code=400, detail="Email already registered")
-#     return crud.create_user(db=db, user=user)
+    return crud.create_service_provider(db=db, service_provider=service_provider)
 
+# TODO: What is to return?
+@app.get("/provider/delete")
+def remove_service_provider_by_name(name: str = None, db: Session = Depends(get_db)):
+    response = crud.delete_service_provider_by_name(db=db, name=name)
 
-@app.get("/users/", response_model=List[schemas.ServiceProvider])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_user(db)
-    return users
+    if not response:
+        raise HTTPException(status_code=400, detail="Name not exists")
+    
+    return f"{name} deleted"
 
+@app.get("/providers", response_model = List[schemas.ServiceProvider])
+def read_service_provider(db: Session = Depends(get_db)):
+    return crud.get_service_provider(db)
 
-# @app.get("/users/{user_id}", response_model=schemas.User)
-# def read_user(user_id: int, db: Session = Depends(get_db)):
-#     db_user = crud.get_user(db, user_id=user_id)
-#     if db_user is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return db_user
+@app.get("/provider/", response_model = schemas.ServiceProvider)
+def read_service_provider_by(name: str = None, cpf: str = None,db: Session = Depends(get_db)):
+    if name:
+        db_service_provider = crud.get_service_provider_by_name(db=db, name=name)
+    elif cpf:
+        db_service_provider = crud.get_service_provider_by_cpf(db=db, cpf=cpf)
 
+    if db_service_provider is None:
+        raise HTTPException(status_code=404, detail="Service provider not found")
+    
+    return db_service_provider
 
-# @app.post("/users/{user_id}/items/", response_model=schemas.Item)
-# def create_item_for_user(
-#     user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-# ):
-#     return crud.create_user_item(db=db, item=item, user_id=user_id)
+@app.post("/client/create")
+def create_client(client: schemas.Client, db: Session = Depends(get_db)):
+    db_client_cpf = crud.get_client_by_cpf(db=db, cpf=client.cpf)
+    db_client_name = crud.get_client_by_name(db=db, name=client.name)
 
+    if db_client_name:
+        raise HTTPException(status_code=400, detail="Name already registered")
+    elif db_client_cpf:
+        raise HTTPException(status_code=400, detail="Cpf already registered")
 
-# @app.get("/items/", response_model=List[schemas.Item])
-# def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     items = crud.get_items(db, skip=skip, limit=limit)
-#     return items
+    return crud.create_client(db=db, client=client)
+
+# TODO: What is to return?
+@app.get("/client/remove")
+def remove_client_by_name(name: str = None, db: Session = Depends(get_db)):
+    response = crud.delete_client_by_name(db=db, name=name)
+
+    if not response:
+        raise HTTPException(status_code=400, detail="Name not exists")
+    
+    return f"{name} deleted"
+
+@app.get("/clients")
+def read_client(db: Session = Depends(get_db)):
+    return crud.get_client(db)
