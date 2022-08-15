@@ -1,4 +1,5 @@
-from sqlalchemy import Boolean, Column, Integer, String, Numeric, ForeignKey, DateTime, Table
+from sqlalchemy import Boolean, Column, Integer, String, Numeric,\
+                        ForeignKey, DateTime, Table, Date
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -65,7 +66,7 @@ class Client(Base):
     id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
     name = Column(String(32), unique=True, nullable=False)
     display_name = Column(String(32), nullable=False)
-    birth_date = Column(DateTime(), nullable=False)
+    birth_date = Column(Date(), nullable=False)
     cpf = Column(String(11), nullable=False, unique=True)
     country = Column(String(3), nullable=True)
     state = Column(String(2), nullable=True)
