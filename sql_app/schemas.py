@@ -1,84 +1,114 @@
+from datetime import date, datetime
 from typing import Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, EmailStr, Field
 
+class StudioCreate(BaseModel):
+    name: str = Field(..., max_length=32)
+    display_name: str = Field(..., max_length=32)
+    country: Union[str, None] = Field(None, max_length=3, min_length=2) 
+    state: Union[str, None] = Field(None, max_length=2)
+    city: Union[str, None] = Field(None, max_length=32)
+    district: Union[str, None] = Field(None, max_length=100)
+    address: Union[str, None] = Field(None, max_length=100)
+    number: Union[int, None] = Field(0, ge=0)
+    zip_code: Union[str, None] = Field(None, max_length=10)
+    complement: Union[str, None] = Field(None, max_length=15)
+    email: Union[EmailStr , None] = None
+    phone_number: Union[str, None] = Field(None, max_length=20)
+    description: Union[str, None] = Field(None, max_length=255)
+    email_owner: Union[EmailStr, None] = None
 
-class ServiceProvider(BaseModel):
-    name: str
-    display_name: str
-    cpf: str
-    email: Union[str, None] = None
-    phone_number: Union[str, None] = None
-    signal: Union[int, None] = None
-    description: Union[str, None] = None
+    class Config:
+        orm_mode = True
+
+class Studio(StudioCreate):
+    id: int
+    email: Union[str , None] = None
+    email_owner: Union[str, None] = None
+
+    class Config:
+        orm_mode = True
+
+class ServiceProviderCreate(BaseModel):
+    name: str = Field(..., max_length=32)
+    display_name: str = Field(..., max_length=32)
+    cpf: str = Field(..., max_length=11)
+    email: Union[EmailStr, None] = None
+    phone_number: Union[str, None] = Field(None, max_length=20)
+    signal: Union[int, None] = Field(None, ge=0)
+    description: Union[str, None] = Field(None, max_length=255)
 
     class Config:
         orm_mode = True
     
+    @validator("cpf")
+    def validator_cpf(cls, v):
+        # TODO: validate cpf
+        return v
 
-class Client(BaseModel):
-    name: str
-    display_name: str
-    birth_date: str
-    cpf: str
-    country: Union[str, None] = None 
-    state: Union[str, None] = None 
-    city: Union[str, None] = None
-    district: Union[str, None] = None
-    address: Union[str, None] = None
-    number: Union[int, None] = None
-    zip_code: Union[str, None] = None
-    complement: Union[str, None] = None 
-    email: Union[str, None] = None 
-    phone_number: Union[str, None] = None
+class ServiceProvider(ServiceProviderCreate):
+    id: int
+    email: Union[str, None] = None
 
     class Config:
         orm_mode = True
 
-class Sell(BaseModel):
-    service_provider: str
-    studio: Union[str, None] = None
-    client: str
-    service_style: Union[int, None] = None
-    tender: Union[int, None] = None
-    price: int
+class ClientCreate(BaseModel):
+    name: str = Field(..., max_length=32)
+    display_name: str = Field(..., max_length=32)
+    birth_date: date
+    cpf: str = Field(..., max_length=11)
+    country: Union[str, None] = Field(None, max_length=3, min_length=2) 
+    state: Union[str, None] = Field(None, max_length=2)
+    city: Union[str, None] = Field(None, max_length=32)
+    district: Union[str, None] = Field(None, max_length=100)
+    address: Union[str, None] = Field(None, max_length=100)
+    number: Union[int, None] = Field(0, ge=0)
+    zip_code: Union[str, None] = Field(None, max_length=10)
+    complement: Union[str, None] = Field(None, max_length=15) 
+    email: Union[EmailStr, None] = None 
+    phone_number: Union[str, None] = Field(None, max_length=20)
+
+    class Config:
+        orm_mode = True
+
+    @validator("cpf")
+    def validator_cpf(cls, v):
+        # TODO: validate cpf
+        return v
+
+class Client(ClientCreate):
+    id: int
+    email: Union[str, None] = None 
+
+    class Config:
+        orm_mode = True
+
+class SellCreate(BaseModel):
+    studio_name: Union[str, None] = Field(None, max_length=32)
+    client_name: str = Field(..., max_length=32)
+    service_provider_name: str = Field(..., max_length=32)
+    service_style_name: Union[str, None] = Field(None, max_length=32)
+    tender_id: Union[int, None] = Field(None, ge=0)
+    price: float = Field(0.0, ge=0.0)
     studio_rate: Union[int, None] = None
     client_rate: Union[int, None] = None
     service_provider_rate: Union[int, None] = None
-    client_suggestion_desc: Union[str, None] = None
+    client_suggestion_desc: Union[str, None] = Field(None, max_length=140)
     client_satisfied: Union[bool, None] = None
-    number_of_sessions: int
+    number_of_sessions: int = Field(1, ge=1)
     client_contract_confirmed: Union[bool, None] = None
     service_provider_contract_confirmed: Union[bool, None] = None
-    start_time: str
-    last_update: Union[str, None] = None
-    finish_time: Union[str, None] = None 
-    phone_number: Union[str, None] = None
+    start_time: datetime
+    last_update: Union[datetime, None] = None
+    finish_time: Union[datetime, None] = None 
 
     class Config:
         orm_mode = True
 
-class Studio(BaseModel):
-    name: str
-    display_name: str
-    birth_date: str
-    cpf: str
-    country: Union[str, None] = None 
-    state: Union[str, None] = None 
-    city: Union[str, None] = None
-    district: Union[str, None] = None
-    address: Union[str, None] = None
-    number: Union[int, None] = None
-    zip_code: Union[str, None] = None
-    complement: Union[str, None] = None
-    email: Union[str, None] = None 
-    phone_number: Union[str, None] = None
-    description: Union[str, None] = None
-    email_owner = str
-
+class Sell(SellCreate):
+    id: int
+    
     class Config:
         orm_mode = True
-
-    # TODO: confirm with luan
-    # sell = relationship("Sell", back_populates="studio", uselist=False)
-    # service_providers = relationship("ServiceProvider", secondary=association_table_service_provider_studio, back_populates="studios")
