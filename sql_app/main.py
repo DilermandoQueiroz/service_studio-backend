@@ -7,9 +7,9 @@ from firebase_admin import auth, credentials
 from sqlalchemy.orm import Session
 import crud, models, schemas
 from database import SessionLocal, engine
-from . import custom_logger as logging
+import custom_logger as logging
 
-cred = credentials.Certificate('shared/firebase-admin-private-key.json')
+cred = credentials.Certificate('shared/firebase-private-key.json')
 firebase_app = firebase_admin.initialize_app(cred)
 models.Base.metadata.create_all(bind=engine)
 
@@ -39,9 +39,10 @@ def validate_token(header_autorization: string):
         bearer_token = header_autorization.split(" ")[1]
         token_verified = auth.verify_id_token(bearer_token, app=firebase_app)
         if token_verified['email_verified'] == False:
-            raise HTTPException(status_code=404, detail="Email not verified")
+            raise HTTPException(status_code=401, detail="Email not verified")
         return True
     except Exception as e:
+        logger.error(e)
         raise HTTPException(status_code=401, detail="Invalid Token")
 
 
