@@ -1,6 +1,6 @@
 import string
 from typing import List
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
 from firebase_admin import auth, credentials
@@ -46,10 +46,10 @@ def validate_token(header_autorization: string):
 
 
 @app.post("/studio/create", response_model = schemas.StudioCreate, status_code = status.HTTP_201_CREATED)
-def create_studio_provider(studio: schemas.StudioCreate, db: Session = Depends(get_db)):
+def create_studio_provider(request: Request, studio: schemas.StudioCreate, db: Session = Depends(get_db)):
     
     try:
-        if validate_token():
+        if validate_token(request.headers['authorization']):
             db_studio_name = crud.get_studio_by_name(db=db, name=studio.name)
             db_studio_owner_email = crud.get_studio_by_email(db=db, email=studio.email_owner)
             if db_studio_name:
