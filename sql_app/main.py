@@ -1,18 +1,22 @@
+import string
 from typing import List
-
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-
+import firebase_admin
+from firebase_admin import auth, credentials
 from sqlalchemy.orm import Session
-
 import crud, models, schemas
 from database import SessionLocal, engine
+from . import custom_logger as logging
 
+cred = credentials.Certificate('shared/firebase-admin-private-key.json')
+firebase_app = firebase_admin.initialize_app(cred)
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
 
+app = FastAPI()
 origins = ["*"]
+logger = logging.custom_logger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,17 +34,32 @@ def get_db():
     finally:
         db.close()
 
+def validate_token(header_autorization: string):
+    try:
+        bearer_token = header_autorization.split(" ")[1]
+        token_verified = auth.verify_id_token(bearer_token, app=firebase_app)
+        if token_verified['email_verified'] == False:
+            raise HTTPException(status_code=404, detail="Email not verified")
+        return True
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid Token")
+
+
 @app.post("/studio/create", response_model = schemas.StudioCreate, status_code = status.HTTP_201_CREATED)
 def create_studio_provider(studio: schemas.StudioCreate, db: Session = Depends(get_db)):
-    db_studio_name = crud.get_studio_by_name(db=db, name=studio.name)
-    db_studio_owner_email = crud.get_studio_by_email(db=db, email=studio.email_owner)
+    
+    try:
+        if validate_token():
+            db_studio_name = crud.get_studio_by_name(db=db, name=studio.name)
+            db_studio_owner_email = crud.get_studio_by_email(db=db, email=studio.email_owner)
+            if db_studio_name:
+                raise HTTPException(status_code=400, detail="Name already registered")
+            elif db_studio_owner_email:
+                raise HTTPException(status_code=400, detail="Owner email already registered")
 
-    if db_studio_name:
-        raise HTTPException(status_code=400, detail="Name already registered")
-    elif db_studio_owner_email:
-        raise HTTPException(status_code=400, detail="Owner email already registered")
-
-    return crud.create_studio(db=db, studio=studio)
+            return crud.create_studio(db=db, studio=studio)
+    except Exception as e:
+        logger.error(e)
 
 @app.post("/provider/create", response_model = schemas.ServiceProviderCreate, status_code = status.HTTP_201_CREATED)
 def create_service_provider(service_provider: schemas.ServiceProviderCreate, db: Session = Depends(get_db)):
