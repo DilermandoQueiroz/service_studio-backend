@@ -60,6 +60,7 @@ def create_studio_provider(request: Request, studio: schemas.StudioCreate, db: S
             return crud.create_studio(db=db, studio=studio)
     except Exception as e:
         logger.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/provider/create", response_model = schemas.ServiceProviderCreate, status_code = status.HTTP_201_CREATED)
 def create_service_provider(service_provider: schemas.ServiceProviderCreate, db: Session = Depends(get_db)):
