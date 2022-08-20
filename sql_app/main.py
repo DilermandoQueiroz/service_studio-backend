@@ -33,21 +33,27 @@ def get_db():
 @app.post("/studio/create", response_model = schemas.StudioCreate, status_code = status.HTTP_201_CREATED)
 def create_studio_provider(studio: schemas.StudioCreate, db: Session = Depends(get_db)):
     db_studio_name = crud.get_studio_by_name(db=db, name=studio.name)
-    
+    db_studio_owner_email = crud.get_studio_by_email(db=db, email=studio.email_owner)
+
     if db_studio_name:
         raise HTTPException(status_code=400, detail="Name already registered")
-    
+    elif db_studio_owner_email:
+        raise HTTPException(status_code=400, detail="Owner email already registered")
+
     return crud.create_studio(db=db, studio=studio)
 
 @app.post("/provider/create", response_model = schemas.ServiceProviderCreate, status_code = status.HTTP_201_CREATED)
 def create_service_provider(service_provider: schemas.ServiceProviderCreate, db: Session = Depends(get_db)):
     db_service_provider_cpf = crud.get_service_provider_by_cpf(db=db, cpf=service_provider.cpf)
     db_service_provider_name = crud.get_service_provider_by_name(db=db, name=service_provider.name)
-    
+    db_service_provider_email = crud.get_service_provider_by_email(db=db, name=service_provider.email)
+
     if db_service_provider_name:
         raise HTTPException(status_code=400, detail="Name already registered")
     elif db_service_provider_cpf:
         raise HTTPException(status_code=400, detail="Cpf already registered")
+    elif db_service_provider_email:
+        raise HTTPException(status_code=400, detail="Email already registered")
 
     return crud.create_service_provider(db=db, service_provider=service_provider)
 
@@ -55,11 +61,14 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreate, db:
 def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
     db_client_cpf = crud.get_client_by_cpf(db=db, cpf=client.cpf)
     db_client_name = crud.get_client_by_name(db=db, name=client.name)
+    db_client_email = crud.get_client_by_email(db=db, email=client.email)
 
     if db_client_name:
         raise HTTPException(status_code=400, detail="Name already registered")
     elif db_client_cpf:
         raise HTTPException(status_code=400, detail="Cpf already registered")
+    elif db_client_email:
+        raise HTTPException(status_code=400, detail="Email already registered")
 
     return crud.create_client(db=db, client=client)
 
@@ -117,9 +126,13 @@ def read_studios(db: Session = Depends(get_db)):
 def read_service_providers(db: Session = Depends(get_db)):
     return crud.get_service_provider(db)
 
-@app.get("/clients")
+@app.get("/clients", response_model=List[schemas.Client])
 def read_clients(db: Session = Depends(get_db)):
     return crud.get_client(db)
+
+@app.get("/sells", response_model=List[schemas.Sell])
+def read_sells(db: Session = Depends(get_db)):
+    return crud.get_sell(db)
 
 @app.get("/provider/", response_model = schemas.ServiceProvider)
 def read_service_provider_by(name: str = None, cpf: str = None,db: Session = Depends(get_db)):

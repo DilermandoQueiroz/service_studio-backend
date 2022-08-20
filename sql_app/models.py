@@ -38,7 +38,7 @@ class Studio(Base):
     email = Column(String(50), nullable=True)
     phone_number = Column(String(20), nullable=True)
     description = Column(String(255), nullable=True)
-    email_owner = Column(String(50), nullable=False)
+    email_owner = Column(String(50), unique=True, nullable=False)
 
     sell = relationship("Sell", back_populates="studio", uselist=False)
     service_providers = relationship("ServiceProvider", secondary=association_table_service_provider_studio, back_populates="studios")
@@ -51,7 +51,7 @@ class ServiceProvider(Base):
     name = Column(String(32), unique=True, nullable=False)
     display_name = Column(String(32), nullable=False)
     cpf = Column(String(11), nullable=False, unique=True)
-    email = Column(String(50), nullable=True)
+    email = Column(String(50), unique=True, nullable=False)
     phone_number = Column(String(20), nullable=True)
     signal = Column(Numeric(asdecimal=True), nullable=True)
     description = Column(String(255), nullable=True)
@@ -76,7 +76,7 @@ class Client(Base):
     number = Column(Integer(), nullable=True)
     zip_code = Column(String(10), nullable=True)
     complement = Column(String(15), nullable=True)
-    email = Column(String(50), nullable=True)
+    email = Column(String(50), unique=True, nullable=False)
     phone_number = Column(String(20), nullable=True)
     sell = relationship("Sell", back_populates="client", uselist=False)
 
