@@ -25,7 +25,7 @@ class Studio(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(32), unique=True, nullable=False)
+    name = Column(String(36), unique=True, nullable=False)
     display_name = Column(String(32), nullable=False)
     country = Column(String(3), nullable=True)
     state = Column(String(2), nullable=True)
@@ -48,7 +48,7 @@ class ServiceProvider(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(32), unique=True, nullable=False)
+    name = Column(String(36), unique=True, nullable=False)
     display_name = Column(String(32), nullable=False)
     cpf = Column(String(11), nullable=False, unique=True)
     email = Column(String(50), unique=True, nullable=False)
@@ -64,7 +64,7 @@ class Client(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(32), unique=True, nullable=False)
+    name = Column(String(36), unique=True, nullable=False)
     display_name = Column(String(32), nullable=False)
     birth_date = Column(Date(), nullable=False)
     cpf = Column(String(11), nullable=False, unique=True)
@@ -89,9 +89,9 @@ class Sell(Base):
     """
     ForeignKey Start
     """
-    studio_name = Column(String(32), ForeignKey("studio.name"), nullable=True, unique=True)
-    client_name = Column(String(32), ForeignKey("client.name"), nullable=False, unique=True)
-    service_provider_name = Column(String(32), ForeignKey("service_provider.name"), unique=True)
+    studio_name = Column(String(36), ForeignKey("studio.name"), nullable=True, unique=True)
+    client_name = Column(String(36), ForeignKey("client.name"), nullable=False, unique=True)
+    service_provider_name = Column(String(36), ForeignKey("service_provider.name"), unique=True)
     service_style_name = Column(String(32), ForeignKey("service_style.name"), unique=True)
     tender_id = Column(Integer(), ForeignKey("service_tender.id"), nullable=True)
     """
@@ -124,7 +124,7 @@ class ServiceStyle(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(32), unique=True, nullable=False)
+    name = Column(String(36), unique=True, nullable=False)
     display_name = Column(String(32), nullable=False)
     type = Column(String(32), nullable=False)
     sell = relationship("Sell", back_populates="service_style", uselist=False)
