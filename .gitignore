@@ -1,2 +1,4 @@
 *.pyc
 __pycache__
+logfile.log
+.pytest_cache
