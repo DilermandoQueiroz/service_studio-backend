@@ -131,7 +131,7 @@ def get_studio_by_email(db: Session, email: str):
 
 
 def get_service_provider_by_email(db: Session, email: str):
-    return db.query(models.ServiceProvider).filter(models.ServiceProvider.email == email)
+    return db.query(models.ServiceProvider).filter(models.ServiceProvider.email == email).first()
 
 
 def get_client_by_email(db: Session, email: str):
