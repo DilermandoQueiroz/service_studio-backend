@@ -67,7 +67,7 @@ def create_studio_provider(request: Request, studio: schemas.StudioCreate, db: S
 def create_service_provider(service_provider: schemas.ServiceProviderCreate, db: Session = Depends(get_db)):
     db_service_provider_cpf = crud.get_service_provider_by_cpf(db=db, cpf=service_provider.cpf)
     db_service_provider_name = crud.get_service_provider_by_name(db=db, name=service_provider.name)
-    db_service_provider_email = crud.get_service_provider_by_email(db=db, name=service_provider.email)
+    db_service_provider_email = crud.get_service_provider_by_email(db=db, email=service_provider.email)
 
     if db_service_provider_name:
         raise HTTPException(status_code=400, detail="Name already registered")
@@ -156,9 +156,11 @@ def read_sells(db: Session = Depends(get_db)):
     return crud.get_sell(db)
 
 @app.get("/provider/", response_model = schemas.ServiceProvider)
-def read_service_provider_by(name: str = None, cpf: str = None,db: Session = Depends(get_db)):
+def read_service_provider_by(name: str = None, cpf: str = None, email: str = None, db: Session = Depends(get_db)):
     if name:
         db_service_provider = crud.get_service_provider_by_name(db=db, name=name)
+    elif email:
+        db_service_provider = crud.get_service_provider_by_email(db=db, email=email)
     elif cpf:
         db_service_provider = crud.get_service_provider_by_cpf(db=db, cpf=cpf)
 
@@ -168,9 +170,11 @@ def read_service_provider_by(name: str = None, cpf: str = None,db: Session = Dep
     return db_service_provider
 
 @app.get("/client/", response_model=schemas.Client)
-def read_client_by_name(name: str = None, db: Session = Depends(get_db)):
-    db_client = crud.get_client_by_name(db=db, name=name)
-
+def read_client_by_name(name: str = None, email: str = None, db: Session = Depends(get_db)):
+    if name:
+        db_client = crud.get_client_by_name(db=db, name=name)
+    elif email:
+        db_client = crud.get_client_by_email(db=db, email=email)
     if db_client is None:
         raise HTTPException(status_code=404, detail="Service provider not found")
     
