@@ -4,8 +4,8 @@ from typing import Optional, Union
 from pydantic import BaseModel, validator, EmailStr, Field
 
 class StudioCreate(BaseModel):
-    name: str = Field(..., max_length=32)
-    display_name: str = Field(..., max_length=32)
+    name: str = Field(..., max_length=36)
+    display_name: str = Field(..., max_length=36)
     country: Optional[str] = Field(None, max_length=3, min_length=2) 
     state: Optional[str] = Field(None, max_length=2)
     city: Optional[str] = Field(None, max_length=32)
@@ -28,8 +28,8 @@ class Studio(StudioCreate):
     email_owner: str
 
 class ServiceProviderCreate(BaseModel):
-    name: str = Field(..., max_length=32)
-    display_name: str = Field(..., max_length=32)
+    name: str = Field(..., max_length=36)
+    display_name: str = Field(..., max_length=36)
     cpf: str = Field(..., max_length=11)
     email: EmailStr
     phone_number: Optional[str] = Field(None, max_length=20)
@@ -49,8 +49,8 @@ class ServiceProvider(ServiceProviderCreate):
     email: str
 
 class ClientCreate(BaseModel):
-    name: str = Field(..., max_length=32)
-    display_name: str = Field(..., max_length=32)
+    name: str = Field(..., max_length=36)
+    display_name: str = Field(..., max_length=36)
     birth_date: date
     cpf: str = Field(..., max_length=11)
     country: Optional[str] = Field(None, max_length=3, min_length=2) 
@@ -77,10 +77,10 @@ class Client(ClientCreate):
     email: str
 
 class SellCreate(BaseModel):
-    studio_name: Optional[str] = Field(None, max_length=32)
-    client_name: str = Field(..., max_length=32)
-    service_provider_name: str = Field(..., max_length=32)
-    service_style_name: Optional[str] = Field(None, max_length=32)
+    studio_name: Optional[str] = Field(None, max_length=36)
+    client_name: str = Field(..., max_length=36)
+    service_provider_name: str = Field(..., max_length=36)
+    service_style_name: Optional[str] = Field(None, max_length=36)
     tender_id: Optional[int] = Field(None, ge=0)
     price: float = Field(0.0, ge=0.0)
     studio_rate: int = Field(0, ge=0, le=5)
