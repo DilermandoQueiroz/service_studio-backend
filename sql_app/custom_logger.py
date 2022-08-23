@@ -1,10 +1,14 @@
 import logging
+import os
 
 def custom_logger(name):
     file_formatter = logging.Formatter('%(asctime)s~%(levelname)s~%(message)s~module:%(module)s~function:%(module)s')
     console_formatter = logging.Formatter('%(levelname)s -- %(message)s')
-    
-    file_handler = logging.FileHandler("logfile.log")
+
+    if not os.path.exists("log"):
+        os.makedirs("log")
+
+    file_handler = logging.FileHandler("log/logfile.log")
     file_handler.setLevel(logging.WARN)
     file_handler.setFormatter(file_formatter)
     console_handler = logging.StreamHandler()
