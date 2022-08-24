@@ -91,10 +91,10 @@ class Sell(Base):
     """
     ForeignKey Start
     """
-    studio_name = Column(String(36), ForeignKey("studio.name"), nullable=True, unique=True)
-    client_name = Column(String(36), ForeignKey("client.name"), nullable=False, unique=True)
-    service_provider_name = Column(String(36), ForeignKey("service_provider.name"), unique=True)
-    service_style_name = Column(String(32), ForeignKey("service_style.name"), unique=True)
+    studio_name = Column(String(36), ForeignKey("studio.name"), nullable=True, unique=False)
+    client_name = Column(String(36), ForeignKey("client.name"), nullable=False, unique=False)
+    service_provider_name = Column(String(36), ForeignKey("service_provider.name"), unique=False)
+    service_style_name = Column(String(32), ForeignKey("service_style.name"), unique=False)
     tender_id = Column(Integer(), ForeignKey("service_tender.id"), nullable=True)
     """
     ForeignKey finish
