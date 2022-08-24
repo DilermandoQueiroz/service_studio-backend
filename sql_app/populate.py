@@ -47,7 +47,7 @@ def populate_studio(amount: int = 10, db: Session = session):
         }
 
         studio = schemas.StudioCreate(**studio)
-        crud.create_studio(db=db, studio=studio)
+        crud.studio.create(db=db, obj_in=studio)
 
 """Populate service providers
 """
@@ -64,7 +64,7 @@ def populate_service(amount: int = 10, db: Session = session):
         }
 
         service_provider = schemas.ServiceProviderCreate(**service_provider)
-        crud.create_service_provider(db=db, service_provider=service_provider)
+        crud.provider.create(db=db, obj_in=service_provider)
 
 """Populate Client providers
 """
@@ -88,7 +88,7 @@ def populate_client(amount: int = 10, db: Session = session):
         }
         
         client = schemas.ClientCreate(**client)
-        crud.create_client(db=db, client=client)
+        crud.client.create(db=db, obj_in=client)
 
 """Populate sell
 """
@@ -115,7 +115,7 @@ def populate_sell(amount: int = 10, db: Session = session):
         }
         
         sell = schemas.SellCreate(**sell)
-        crud.create_sell(db=db, sell=sell)
+        crud.sell.create(db=db, obj_in=sell)
 
 def main():
     populate_studio(10)
