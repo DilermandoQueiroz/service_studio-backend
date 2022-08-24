@@ -8,10 +8,10 @@ from models import ServiceProvider
 from schemas import ServiceProviderCreate, ServiceProviderInDBBase
 
 
-class CRUDItem(CRUDBase[ServiceProvider, ServiceProviderCreate, ServiceProviderInDBBase]):
+class CRUDServiceProvider(CRUDBase[ServiceProvider, ServiceProviderCreate, ServiceProviderInDBBase]):
     
     def get_by_cpf(self, db: Session, cpf: str) -> Optional[ServiceProviderInDBBase]:
         return db.query(self.model).filter(self.model.cpf == cpf).first()
 
 
-provider = CRUDItem(ServiceProvider)
+provider = CRUDServiceProvider(ServiceProvider)

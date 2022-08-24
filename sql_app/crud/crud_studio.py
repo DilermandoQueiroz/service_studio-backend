@@ -8,8 +8,8 @@ from models import Studio
 from schemas import StudioCreate, StudioInDBBase
 
 
-class CRUDItem(CRUDBase[Studio, StudioCreate, StudioInDBBase]):
+class CRUDStudio(CRUDBase[Studio, StudioCreate, StudioInDBBase]):
     ...
 
 
-studio = CRUDItem(Studio)
+studio = CRUDStudio(Studio)

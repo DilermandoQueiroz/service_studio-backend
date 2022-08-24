@@ -8,8 +8,8 @@ from models import Sell
 from schemas import SellCreate, SellInDBBase
 
 
-class CRUDItem(CRUDBase[Sell, SellCreate, SellInDBBase]):
+class CRUDSell(CRUDBase[Sell, SellCreate, SellInDBBase]):
     ...
 
 
-sell = CRUDItem(Sell)
+sell = CRUDSell(Sell)
