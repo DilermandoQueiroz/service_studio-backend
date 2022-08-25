@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from firebase_admin import auth, credentials
 from sqlalchemy.orm import Session
 
 import crud
@@ -10,7 +9,7 @@ import custom_logger as logging
 import schemas
 from database import Base, SessionLocal, engine
 from firebase_utils import (create_service_provider_firebase, delete_by_user_uid,
-                            validate_token)
+                            validate_token, get_by_uid)
 
 Base.metadata.create_all(bind=engine)
 
@@ -35,24 +34,24 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/studio/create", response_model = schemas.StudioCreate, status_code = status.HTTP_201_CREATED)
-def create_studio_provider(request: Request, studio: schemas.StudioCreate, db: Session = Depends(get_db)):
-    try:
-        if validate_token(request.headers['authorization']):
-            db_studio_name = crud.studio.get_by_name(db=db, name=studio.name)
-            db_studio_owner_email = crud.studio.get_by_email(db=db, email=studio.email_owner)
+# @app.post("/studio/create", response_model = schemas.StudioCreate, status_code = status.HTTP_201_CREATED)
+# def create_studio_provider(request: Request, studio: schemas.StudioCreate, db: Session = Depends(get_db)):
+#     try:
+#         if validate_token(request.headers['authorization']):
+#             db_studio_name = crud.studio.get_by_name(db=db, name=studio.name)
+#             db_studio_owner_email = crud.studio.get_by_email(db=db, email=studio.email_owner)
 
-            if db_studio_name:
-                raise HTTPException(status_code=400, detail="Name already registered")
-            elif db_studio_owner_email:
-                raise HTTPException(status_code=400, detail="Owner email already registered")
+#             if db_studio_name:
+#                 raise HTTPException(status_code=400, detail="Name already registered")
+#             elif db_studio_owner_email:
+#                 raise HTTPException(status_code=400, detail="Owner email already registered")
 
-            return crud.studio.create(db=db, obj_in=studio)
-        else:
-            raise HTTPException(status_code=401, detail="Email not verified")
-    except Exception as error:
-        logger.error(error)
-        raise error
+#             return crud.studio.create(db=db, obj_in=studio)
+#         else:
+#             raise HTTPException(status_code=401, detail="Email not verified")
+#     except Exception as error:
+#         logger.error(error)
+#         raise error
 
 @app.post("/provider/create", response_model = schemas.ServiceProviderCreate, status_code = status.HTTP_201_CREATED)
 def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Session = Depends(get_db)):
@@ -103,9 +102,10 @@ def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Se
 
 
 @app.post("/client/create", response_model = schemas.ClientCreate, status_code = status.HTTP_201_CREATED)
-def create_client(request: Request, client: schemas.ClientCreate, db: Session = Depends(get_db)):
+def create_client(uid: str, client: schemas.ClientCreate, db: Session = Depends(get_db)):
     try:
-        if validate_token(request.headers['authorization']):
+        if uid:
+            get_by_uid(uid)
             db_client_cpf = crud.client.get_by_cpf(db=db, cpf=client.cpf)
             db_client_name = crud.client.get_by_name(db=db, name=client.name)
             db_client_email = crud.client.get_by_email(db=db, email=client.email)
@@ -122,6 +122,8 @@ def create_client(request: Request, client: schemas.ClientCreate, db: Session = 
                 raise HTTPException(status_code=400, detail=f"{', '.join(exceptions)} already registered")
 
             return crud.client.create(db=db, obj_in=client)
+        else:
+            raise  HTTPException(status_code=400, detail="The code is not valid")
     except Exception as error:
         logger.error(error)
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -163,13 +165,19 @@ def remove_studio_by_name(name: str = None, db: Session = Depends(get_db)):
     return response
 
 @app.get("/provider/remove")
-def remove_service_provider_by_name(name: str = None, db: Session = Depends(get_db)):
-    response = crud.provider.remove_by_name(db=db, name=name)
+def remove_service_provider_by_name(uid: str = None, db: Session = Depends(get_db)):
+    try:
+        response = crud.provider.remove_by_name(db=db, name=uid)
+        
+        if not response:
+            raise HTTPException(status_code=400, detail="Uid not exists")
+        
+        delete_by_user_uid(uid)
 
-    if not response:
-        raise HTTPException(status_code=400, detail="Name not exists")
-    
-    return response
+        return response
+    except Exception as error:
+        logger.error(error)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.get("/client/remove")
 def remove_client_by_name(name: str = None, db: Session = Depends(get_db)):
