@@ -57,9 +57,9 @@ def populate_service(amount: int = 10, db: Session = session):
             "name": f"provider{i}",
             "display_name": f"{choice(name)} {choice(last_name)}",
             "cpf": f"{10000000000+i}",
+            "birth_date": f"{randint(1960, 2004)}-{randint(1,12)}-{randint(1,27)}",
             "email": f"provider{i}{choice(email)}",
             "phone_number": f"{randint(100000000, 999999999)}",
-            "signal": randint(0,300),
             "description": description[:randint(1, len(description)-1)]
         }
 
