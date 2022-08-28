@@ -9,7 +9,7 @@ import custom_logger as logging
 import schemas
 from database import Base, SessionLocal, engine
 from firebase_utils import (create_service_provider_firebase, delete_by_user_uid,
-                            validate_token, get_by_uid)
+                            validate_token, get_user_by_uid)
 
 Base.metadata.create_all(bind=engine)
 
@@ -105,7 +105,7 @@ def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Se
 def create_client(uid: str, client: schemas.ClientCreate, db: Session = Depends(get_db)):
     try:
         if uid:
-            get_by_uid(uid)
+            get_user_by_uid(uid)
             db_client_cpf = crud.client.get_by_cpf(db=db, cpf=client.cpf)
             db_client_name = crud.client.get_by_name(db=db, name=client.name)
             db_client_email = crud.client.get_by_email(db=db, email=client.email)
@@ -155,14 +155,14 @@ def create_sell(request: Request, sell: schemas.SellCreate, db: Session = Depend
         logger.error(error)
         raise HTTPException(status_code=500, detail="Internal Server Error")
         
-@app.get("/studio/remove")
-def remove_studio_by_name(name: str = None, db: Session = Depends(get_db)):
-    response = crud.studio.remove_by_name(db=db, name=name)
+# @app.get("/studio/remove")
+# def remove_studio_by_name(name: str = None, db: Session = Depends(get_db)):
+#     response = crud.studio.remove_by_name(db=db, name=name)
 
-    if not response:
-        raise HTTPException(status_code=400, detail="Name not exists")
+#     if not response:
+#         raise HTTPException(status_code=400, detail="Name not exists")
     
-    return response
+#     return response
 
 @app.get("/provider/remove")
 def remove_service_provider_by_name(uid: str = None, db: Session = Depends(get_db)):
@@ -179,14 +179,14 @@ def remove_service_provider_by_name(uid: str = None, db: Session = Depends(get_d
         logger.error(error)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@app.get("/client/remove")
-def remove_client_by_name(name: str = None, db: Session = Depends(get_db)):
-    response = crud.client.remove_by_name(db=db, name=name)
+# @app.get("/client/remove")
+# def remove_client_by_name(name: str = None, db: Session = Depends(get_db)):
+#     response = crud.client.remove_by_name(db=db, name=name)
 
-    if not response:
-        raise HTTPException(status_code=400, detail="Name not exists")
+#     if not response:
+#         raise HTTPException(status_code=400, detail="Name not exists")
     
-    return response
+#     return response
 
 @app.get("/studios", response_model=List[schemas.StudioInDBBase])
 def read_studios(db: Session = Depends(get_db)):
@@ -204,29 +204,29 @@ def read_clients(db: Session = Depends(get_db)):
 def read_sells(db: Session = Depends(get_db)):
     return crud.sell.get_all(db)
 
-@app.get("/provider/", response_model = schemas.ServiceProviderInDBBase)
-def read_service_provider_by(name: str = None, cpf: str = None, email: str = None, db: Session = Depends(get_db)):
-    db_service_provider = False
+# @app.get("/provider/", response_model = schemas.ServiceProviderInDBBase)
+# def read_service_provider_by(name: str = None, cpf: str = None, email: str = None, db: Session = Depends(get_db)):
+#     db_service_provider = False
 
-    if name:
-        db_service_provider = crud.provider.get_by_name(db=db, name=name)
-    elif email:
-        db_service_provider = crud.provider.get_by_email(db=db, email=email)
-    elif cpf:
-        db_service_provider = crud.provider.get_by_cpf(db=db, cpf=cpf)
+#     if name:
+#         db_service_provider = crud.provider.get_by_name(db=db, name=name)
+#     elif email:
+#         db_service_provider = crud.provider.get_by_email(db=db, email=email)
+#     elif cpf:
+#         db_service_provider = crud.provider.get_by_cpf(db=db, cpf=cpf)
 
-    if not db_service_provider:
-        raise HTTPException(status_code=404, detail="Service provider not found")
+#     if not db_service_provider:
+#         raise HTTPException(status_code=404, detail="Service provider not found")
     
-    return db_service_provider
+#     return db_service_provider
 
-@app.get("/client/", response_model=schemas.ClientInDBBase)
-def read_client_by_name(name: str = None, email: str = None, db: Session = Depends(get_db)):
-    if name:
-        db_client = crud.client.get_by_name(db=db, name=name)
-    elif email:
-        db_client = crud.client.get_by_email(db=db, email=email)
-    if db_client is None:
-        raise HTTPException(status_code=404, detail="Service provider not found")
+# @app.get("/client/", response_model=schemas.ClientInDBBase)
+# def read_client_by_name(name: str = None, email: str = None, db: Session = Depends(get_db)):
+#     if name:
+#         db_client = crud.client.get_by_name(db=db, name=name)
+#     elif email:
+#         db_client = crud.client.get_by_email(db=db, email=email)
+#     if db_client is None:
+#         raise HTTPException(status_code=404, detail="Service provider not found")
     
-    return db_client
+#     return db_client

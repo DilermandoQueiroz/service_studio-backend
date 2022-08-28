@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from firebase_admin import credentials, initialize_app, auth
 import schemas
 
-cred = credentials.Certificate('shared/firebase-private-key.json')
+cred = credentials.Certificate("shared/firebase-private-key.json")
 firebase_app = initialize_app(cred)
 
 def validate_token(header_autorization: str):
@@ -37,7 +37,7 @@ def delete_by_user_uid(uid: str):
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-def get_by_uid(uid: str):
+def get_user_by_uid(uid: str):
     try:
         user = auth.get_user(uid)
         if user:
@@ -47,5 +47,5 @@ def get_by_uid(uid: str):
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-def get_by_email(email: str):
+def get_user_by_email(email: str):
     return auth.get_user_by_email(email)
