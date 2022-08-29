@@ -91,26 +91,26 @@ class Sell(Base):
     """
     ForeignKey Start
     """
-    studio_name = Column(String(36), ForeignKey("studio.name"), nullable=True, unique=False)
-    client_name = Column(String(36), ForeignKey("client.name"), nullable=False, unique=False)
-    service_provider_name = Column(String(36), ForeignKey("service_provider.name"), unique=False)
-    service_style_name = Column(String(32), ForeignKey("service_style.name"), unique=False)
+    studio_name = Column(String(36), ForeignKey("studio.email_owner"), nullable=True, unique=False)
+    client_name = Column(String(36), ForeignKey("client.email"), nullable=False, unique=False)
+    service_provider_name = Column(String(36), ForeignKey("service_provider.email"), nullable=False, unique=False)
+    service_style_name = Column(String(32), ForeignKey("service_style.name"), nullable=True, unique=False)
     tender_id = Column(Integer(), ForeignKey("service_tender.id"), nullable=True)
     """
     ForeignKey finish
     """
     price = Column(Numeric(asdecimal=True), nullable=False)
     studio_rate = Column(Integer(), nullable=True)
-    client_rate = Column(Integer(), nullable=False)
-    service_provider_rate = Column(Integer(), nullable=False)
+    client_rate = Column(Integer(), nullable=True)
+    service_provider_rate = Column(Integer(), nullable=True)
     client_suggestion_desc = Column(String(140), nullable=True)
-    client_satisfied = Column(Boolean(), nullable=False)
+    client_satisfied = Column(Boolean(), nullable=True)
     number_of_sessions = Column(Integer(), nullable=True)
-    client_contract_confirmed = Column(Boolean(), nullable=False)
-    service_provider_contract_confirmed = Column(Boolean(), nullable=False)
+    client_contract_confirmed = Column(Boolean(), nullable=True)
+    service_provider_contract_confirmed = Column(Boolean(), nullable=True)
     start_time = Column(DateTime(), nullable=False)
-    last_update = Column(DateTime(), nullable=False)
-    finish_time = Column(DateTime(), nullable=False)
+    last_update = Column(DateTime(), nullable=True)
+    finish_time = Column(DateTime(), nullable=True)
     """
     Relationship start
     """

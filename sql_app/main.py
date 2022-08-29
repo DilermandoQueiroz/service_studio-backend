@@ -92,6 +92,7 @@ def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Se
             )
 
             return crud.provider.create(db=db, obj_in=user_db)
+            
     except Exception as error:
         logger.error(error)
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -105,6 +106,7 @@ def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Se
 @app.post("/client/create", response_model = schemas.ClientCreate, status_code = status.HTTP_201_CREATED)
 def create_client(request: Request, client: schemas.ClientCreate, db: Session = Depends(get_db)):
     try:
+        user = validate_token(request.headers['authorization'])
         if validate_token(request.headers['authorization']):
             db_client_cpf = crud.client.get_by_cpf(db=db, cpf=client.cpf)
             db_client_name = crud.client.get_by_name(db=db, name=client.name)
@@ -130,8 +132,8 @@ def create_client(request: Request, client: schemas.ClientCreate, db: Session = 
 def create_sell(request: Request, sell: schemas.SellCreate, db: Session = Depends(get_db)):
     try:
         if validate_token(request.headers['authorization']):
-            db_service_provider = crud.provider.get_by_name(db=db, name=sell.service_provider_name)
-            db_client = crud.client.get_by_name(db=db, name=sell.client_name)
+            db_service_provider = crud.provider.get_by_email(db=db, email=sell.service_provider_name)
+            db_client = crud.client.get_by_email(db=db, email=sell.client_name)
             exceptions = []
 
             if sell.studio_name:
@@ -148,7 +150,7 @@ def create_sell(request: Request, sell: schemas.SellCreate, db: Session = Depend
             if len(exceptions) > 0:
                 raise HTTPException(status_code=400, detail=f"{', '.join(exceptions)} not exists")
 
-            return crud.sell.create(db=db, obj_in=sell)
+        return crud.sell.create(db=db, obj_in=sell)
     except Exception as error:
         logger.error(error)
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -196,6 +198,7 @@ def read_clients(db: Session = Depends(get_db)):
 def read_sells(db: Session = Depends(get_db)):
     return crud.sell.get_all(db)
 
+
 @app.get("/provider/", response_model = schemas.ServiceProviderInDBBase)
 def read_service_provider_by(name: str = None, cpf: str = None, email: str = None, db: Session = Depends(get_db)):
     db_service_provider = False
@@ -222,3 +225,12 @@ def read_client_by_name(name: str = None, email: str = None, db: Session = Depen
         raise HTTPException(status_code=404, detail="Service provider not found")
     
     return db_client
+
+@app.get("/sell_by_email/", response_model=List[schemas.SellInDBBase])
+def read_client_by_name(request: Request, db: Session = Depends(get_db)):
+    user = validate_token(request.headers['authorization'])
+    if user:
+        db_client = crud.sell.get_by_provider_email(db=db, service_provider_email=user['email'])
+        if db_client is None:
+            raise HTTPException(status_code=404, detail="Clients not found")
+        return db_client

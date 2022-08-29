@@ -26,6 +26,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get_by_email(self, db: Session, email: str) -> Optional[ModelType]:
         return db.query(self.model).filter(self.model.email == email).first()
 
+    def get_by_provider_email(self, db: Session, email: str) -> Optional[ModelType]:
+        return db.query(self.model).filter(self.model.email == email).first()
+
     def get_by_name(self, db: Session, name: str) -> Optional[ModelType]:
         return db.query(self.model).filter(self.model.name == name).first()
     

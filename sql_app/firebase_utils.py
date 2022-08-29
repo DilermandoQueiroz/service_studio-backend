@@ -9,9 +9,9 @@ def validate_token(header_autorization: str):
     try:
         bearer_token = header_autorization.split(" ")[1]
         token_verified = auth.verify_id_token(bearer_token, app=firebase_app)
-        if token_verified['email_verified'] == False:
-            return False
-        return True
+        # if token_verified['email_verified'] == False:
+        #     return False
+        return token_verified
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
