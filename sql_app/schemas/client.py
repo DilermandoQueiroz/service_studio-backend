@@ -22,10 +22,10 @@ class ClientCreate(BaseModel):
     class Config:
         orm_mode = True
 
-    @validator("cpf")
-    def validator_cpf(cls, v):
-        # TODO: validate cpf
-        return v
+    # @validator("cpf")
+    # def validator_cpf(cls, v):
+    #     # TODO: validate cpf
+    #     return v
 
 class ClientInDBBase(ClientCreate):
     id: int
