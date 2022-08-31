@@ -1,5 +1,5 @@
 import sys
-from urllib import response
+
 sys.path += [
     "/Users/dilermando/dev/service_studio-backend/sql_app",
     "/Users/dilermando/dev/service_studio-backend/sql_app/shared"
@@ -14,7 +14,7 @@ client = TestClient(app)
 provider = {
     "birth_date": "2022-08-25",
     "display_name": "Test Api",
-    "cpf": "123123123",
+    "cpf": "78475865097",
     "email": "test1@example.com",
     "phone_number": "+55123123123",
     "password": "testando1"
@@ -22,13 +22,13 @@ provider = {
 
 provider2 = {
     "birth_date": "2022-08-25",
-    "cpf": "111111111",
+    "cpf": "78475865097",
     "email": "test2@example.com",
     "phone_number": "+551123123123",
     "password": "testando1"
 }
 
-def test_withou_display_name():
+def test_without_display_name():
     response = client.post(
         "/provider/create",
         json = provider2
@@ -53,3 +53,12 @@ def test_service_delete():
     user = get_user_by_email("test1@example.com")
     response = client.get(f"/provider/remove/?uid={user.uid}")
     assert response.status_code == 200
+
+# def test_create_cpf_wrong():
+#     provider["cpf"] = "78475865099"
+#     provider["email"] = "test2@example.com"
+#     response = client.post(
+#         "/provider/create",
+#         json = provider
+#     )
+#     assert response.status_code == 500

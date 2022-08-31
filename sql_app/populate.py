@@ -24,6 +24,19 @@ description = "Lorem Ipsum is simply dummy text of the printing" +\
 
 district = ["tatuape", "bela vista", "se", "moema", "paraiso", "liberdade", "cambuci", "mooca"]
 
+def cpf_generate():
+    while True:
+        cpf = [randint(0, 9) for _ in range(9)]
+        if cpf != cpf[::-1]:
+            break
+
+    for i in range(9, 11):
+        value = sum((cpf[num] * ((i + 1) - num) for num in range(0, i)))
+        digit = ((value * 10) % 11) % 10
+        cpf.append(digit)
+
+    result = ''.join(map(str, cpf))
+    return result
 
 """Populate studio
 """
@@ -56,7 +69,7 @@ def populate_service(amount: int = 10, db: Session = session):
         service_provider = {
             "name": f"provider{i}",
             "display_name": f"{choice(name)} {choice(last_name)}",
-            "cpf": f"{10000000000+i}",
+            "cpf": cpf_generate(),
             "birth_date": f"{randint(1960, 2004)}-{randint(1,12)}-{randint(1,27)}",
             "email": f"provider{i}{choice(email)}",
             "phone_number": f"{randint(100000000, 999999999)}",
@@ -74,7 +87,7 @@ def populate_client(amount: int = 10, db: Session = session):
             "name": f"client{i}",
             "display_name": f"{choice(name)} {choice(last_name)}",
             "birth_date": f"{randint(1960, 2004)}-{randint(1,12)}-{randint(1,27)}",
-            "cpf": f"{10000000000+i}",
+            "cpf": cpf_generate(),
             "country": "BRL",
             "state": "SP",
             "city": "SP",

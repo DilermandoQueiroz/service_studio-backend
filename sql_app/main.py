@@ -94,7 +94,7 @@ def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Se
             
     except Exception as error:
         logger.error(error)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise error
     finally:
         if user:
             db_service_provider_name = crud.provider.get_by_name(db=db, name=user.uid)
@@ -149,12 +149,13 @@ def create_sell(request: Request, sell: schemas.SellCreate, db: Session = Depend
                 exceptions.append("client")
 
             if len(exceptions) > 0:
+                print(exceptions)
                 raise HTTPException(status_code=400, detail=f"{', '.join(exceptions)} not exists")
 
         return crud.sell.create(db=db, obj_in=sell)
     except Exception as error:
         logger.error(error)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise error
         
 @app.get("/studio/remove")
 def remove_studio_by_name(name: str = None, db: Session = Depends(get_db)):

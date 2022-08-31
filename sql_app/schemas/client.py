@@ -23,9 +23,23 @@ class ClientCreate(BaseModel):
         orm_mode = True
 
     @validator("cpf")
-    def validator_cpf(cls, v):
-        # TODO: validate cpf
-        return v
+    def validator_cpf(cls, numbers):
+        cpf = [int(char) for char in numbers if char.isdigit()]
+
+        if len(cpf) != 11:
+            return ValueError("CPF do not match")
+
+        if cpf == cpf[::-1]:
+            return ValueError("CPF do not match")
+
+
+        for i in range(9, 11):
+            value = sum((cpf[num] * ((i+1) - num) for num in range(0, i)))
+            digit = ((value * 10) % 11) % 10
+            if digit != cpf[i]:
+                return ValueError("CPF do not match")
+
+        return numbers
 
 class ClientInDBBase(ClientCreate):
     id: int
