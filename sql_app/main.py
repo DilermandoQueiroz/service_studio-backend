@@ -106,7 +106,7 @@ def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Se
 def create_client(request: Request, client: schemas.ClientCreate, db: Session = Depends(get_db)):
     try:
         user = validate_token(request.headers['authorization'])
-        if validate_token(request.headers['authorization']):
+        if user:
             db_client_cpf = crud.client.get_by_cpf(db=db, cpf=client.cpf)
             db_client_name = crud.client.get_by_name(db=db, name=client.name)
             db_client_email = crud.client.get_by_email(db=db, email=client.email)
@@ -127,7 +127,7 @@ def create_client(request: Request, client: schemas.ClientCreate, db: Session = 
             raise  HTTPException(status_code=400, detail="The code is not valid")
     except Exception as error:
         logger.error(error)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        print(error)
 
 @app.post("/sell/create", response_model=schemas.SellCreate, status_code = status.HTTP_201_CREATED)
 def create_sell(request: Request, sell: schemas.SellCreate, db: Session = Depends(get_db)):
