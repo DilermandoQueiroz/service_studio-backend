@@ -244,8 +244,8 @@ def sell_by_email(request: Request, db: Session = Depends(get_db)):
             raise HTTPException(status_code=404, detail="Clients not found")
         return db_client
 
-@app.get("/get_providers_clients", response_model=List[schemas.ClientInDBBase])
-def get_providers_clients(request: Request, db: Session = Depends(get_db)):
+@app.get("/get_provider_clients", response_model=List[schemas.ClientInDBBase])
+def get_provider_clients(request: Request, db: Session = Depends(get_db)):
     user = validate_token(request.headers['authorization'])
     if user:
         db_clients_email = crud.sell.get_clients_unique_by_provider_email(db=db, service_provider_email=user["email"])
