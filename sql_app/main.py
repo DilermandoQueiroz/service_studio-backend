@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
@@ -247,6 +248,9 @@ def sell_by_email(request: Request, db: Session = Depends(get_db)):
 def get_providers_clients(request: Request, db: Session = Depends(get_db)):
     user = validate_token(request.headers['authorization'])
     if user:
-        db_client = crud.sell.get_unique_by_provider_email(db=db, service_provider_email=user['email'])
-
-        return db_client
+        db_clients_email = crud.sell.get_clients_unique_by_provider_email(db=db, service_provider_email=user["email"])
+        if db_clients_email:
+            db_clients = crud.client.get_by_email_list(db=db, emails=db_clients_email)
+            return db_clients
+        
+        return db_clients_email
