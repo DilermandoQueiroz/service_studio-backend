@@ -59,6 +59,14 @@ class ServiceProvider(Base):
     description = Column(String(255), nullable=True)
     studios = relationship("Studio", secondary=association_table_service_provider_studio, back_populates="service_providers")
     sell = relationship("Sell", back_populates="service_provider", uselist=False)
+    country = Column(String(3), nullable=True)
+    state = Column(String(2), nullable=True)
+    city = Column(String(32), nullable=True)
+    district = Column(String(100), nullable=True)
+    address = Column(String(100), nullable=True)
+    number = Column(Integer(), nullable=True)
+    zip_code = Column(String(10), nullable=True)
+    complement = Column(String(15), nullable=True)
 
 
 class Client(Base):
@@ -69,7 +77,7 @@ class Client(Base):
     name = Column(String(36), unique=True, nullable=False)
     display_name = Column(String(32), nullable=False)
     birth_date = Column(Date(), nullable=False)
-    cpf = Column(String(11), nullable=False, unique=True)
+    cpf = Column(String(11), nullable=True, unique=True)
     country = Column(String(3), nullable=True)
     state = Column(String(2), nullable=True)
     city = Column(String(32), nullable=True)
@@ -104,13 +112,13 @@ class Sell(Base):
     client_rate = Column(Integer(), nullable=True)
     service_provider_rate = Column(Integer(), nullable=True)
     client_suggestion_desc = Column(String(140), nullable=True)
-    client_satisfied = Column(Boolean(), nullable=True)
     number_of_sessions = Column(Integer(), nullable=True)
     client_contract_confirmed = Column(Boolean(), nullable=True)
     service_provider_contract_confirmed = Column(Boolean(), nullable=True)
     start_time = Column(DateTime(), nullable=False)
     last_update = Column(DateTime(), nullable=True)
     finish_time = Column(DateTime(), nullable=True)
+    description = Column(String(255), nullable=True)
     """
     Relationship start
     """
