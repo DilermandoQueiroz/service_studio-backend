@@ -37,6 +37,14 @@ def delete_by_user_uid(uid: str):
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+def delete_by_email(email: str):
+    try:
+        user = get_user_by_email(email)
+
+        delete_by_user_uid(user.uid)
+    except Exception as error:
+        raise error
+
 def get_user_by_uid(uid: str):
     try:
         user = auth.get_user(uid)
