@@ -15,7 +15,7 @@ class ServiceProviderFireBase(BaseServiceProvider):
 
 class ServiceProviderCreate(BaseServiceProvider):
     birth_date: date
-    cpf: str = Field(..., max_length=11)
+    cpf: Optional[str] = Field(None, max_length=11)
     name: str = Field(..., max_length=36)
     description: Optional[str] = Field(None, max_length=255)
 
@@ -50,5 +50,5 @@ class ServiceProviderAll(BaseModel):
     email: EmailStr
     phone_number: Optional[str] = Field(None, max_length=20)
     password: str
-    cpf: str = Field(..., max_length=11)
+    cpf: Optional[str] = Field(None, max_length=11)
     description: Optional[str] = Field(None, max_length=255)
