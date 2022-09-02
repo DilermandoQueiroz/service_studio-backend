@@ -3,11 +3,15 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, validator, EmailStr, Field
 
-class ClientCreate(BaseModel):
+class ClientDisplay(BaseModel):
     name: str = Field(..., max_length=36)
     display_name: str = Field(..., max_length=36)
+    email: EmailStr
+    phone_number: Union[str, None] = Field(None, max_length=20)
+
+class ClientCreate(ClientDisplay):
     birth_date: date
-    cpf: str = Field(..., max_length=11)
+    cpf: Optional[str] = Field(None, max_length=11)
     country: Optional[str] = Field(None, max_length=3, min_length=2) 
     state: Optional[str] = Field(None, max_length=2)
     city: Optional[str] = Field(None, max_length=32)
@@ -16,8 +20,6 @@ class ClientCreate(BaseModel):
     number: Optional[int] = Field(0, ge=0)
     zip_code: Optional[str] = Field(None, max_length=10)
     complement: Optional[str] = Field(None, max_length=15) 
-    email: EmailStr
-    phone_number: Union[str, None] = Field(None, max_length=20)
 
     class Config:
         orm_mode = True
