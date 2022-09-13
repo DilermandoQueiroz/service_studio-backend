@@ -13,9 +13,7 @@ class BaseServiceProvider(BaseModel):
 class ServiceProviderFireBase(BaseServiceProvider):
     password: str
 
-class ServiceProviderCreate(BaseServiceProvider):
-    birth_date: date
-    cpf: Optional[str] = Field(None, max_length=11)
+class ServiceProviderDB(BaseServiceProvider):
     name: str = Field(..., max_length=36)
     description: Optional[str] = Field(None, max_length=255)
 
@@ -40,15 +38,10 @@ class ServiceProviderCreate(BaseServiceProvider):
 
     #     return numbers
 
-class ServiceProviderInDBBase(ServiceProviderCreate):
+class ServiceProviderInDBBase(ServiceProviderDB):
     id: int
-    email: str
 
-class ServiceProviderAll(BaseModel):
-    birth_date: date
-    display_name: str = Field(..., max_length=36)
+class ServiceProviderCreate(BaseModel):
     email: EmailStr
-    phone_number: Optional[str] = Field(None, max_length=20)
     password: str
-    cpf: Optional[str] = Field(None, max_length=11)
-    description: Optional[str] = Field(None, max_length=255)
+    display_name: str = Field(..., max_length=36)

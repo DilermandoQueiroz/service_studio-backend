@@ -33,8 +33,8 @@ router = APIRouter(
     
 #     return db_service_provider
 
-@router.post("/create", response_model = schemas.ServiceProviderCreate, status_code = status.HTTP_201_CREATED)
-def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Session = Depends(get_db)):
+@router.post("/create", status_code = status.HTTP_201_CREATED)
+def create_service_provider(service_provider: schemas.ServiceProviderCreate, db: Session = Depends(get_db)):
     user = False
     try:
         user_firebase = schemas.ServiceProviderFireBase(
@@ -61,16 +61,13 @@ def create_service_provider(service_provider: schemas.ServiceProviderAll, db: Se
             if exceptions:
                 raise HTTPException(status_code=400, detail=f"{', '.join(exceptions)} already registered")
 
-            user_db = schemas.ServiceProviderCreate(
-                birth_date=service_provider.birth_date,
+            user_db = schemas.ServiceProviderDB(
                 name=user.uid,
                 display_name=service_provider.display_name,
-                email=service_provider.email,
-                phone_number=service_provider.phone_number,
-                cpf=service_provider.cpf
+                email=service_provider.email
             )
 
-            return crud.provider.create(db=db, obj_in=user_db)
+            crud.provider.create(db=db, obj_in=user_db)
             
     except Exception as error:
         logger.error(error)
