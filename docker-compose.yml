@@ -1,6 +1,8 @@
 version: "3.9"
 services:
   web:
+    links:
+      - "db:db"
     build:
       context: .
       dockerfile: Dockerfile

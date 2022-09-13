@@ -14,7 +14,6 @@ COPY ./pyproject.toml ./poetry.lock* /sql_app/
 RUN poetry config virtualenvs.create false && poetry install
 
 COPY ./sql_app /sql_app/
-ENV PYTHONPATH=/sql_app/
 
 RUN poetry shell
 
