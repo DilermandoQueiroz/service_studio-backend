@@ -19,7 +19,6 @@ def create_service_provider_firebase(service_provider: schemas.ServiceProviderFi
     try:
         user = auth.create_user(
             email=service_provider.email,
-            phone_number=service_provider.phone_number,
             password=service_provider.password,
             display_name=service_provider.display_name
         )
