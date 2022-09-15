@@ -41,20 +41,16 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreate, db:
             display_name=service_provider.display_name,
             email=service_provider.email,
             password=service_provider.password,
-            phone_number=service_provider.phone_number
         )
         user = create_service_provider_firebase(user_firebase)
-        
+
         if user:
-            db_service_provider_cpf = crud.provider.get_by_cpf(db=db, cpf=service_provider.cpf)
             db_service_provider_name = crud.provider.get_by_name(db=db, name=user.uid)
             db_service_provider_email = crud.provider.get_by_email(db=db, email=service_provider.email)
             exceptions = []
 
             if db_service_provider_name:
                 exceptions.append("name")
-            if db_service_provider_cpf:
-                exceptions.append("cpf")
             if db_service_provider_email:
                 exceptions.append("email")
 
@@ -82,7 +78,6 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreate, db:
 def remove_service_provider_by_name(uid: str = None, db: Session = Depends(get_db)):
     try:
         response = crud.provider.remove_by_name(db=db, name=uid)
-        print("passou")
         if not response:
             raise HTTPException(status_code=400, detail="Uid not exists")
         
@@ -93,7 +88,7 @@ def remove_service_provider_by_name(uid: str = None, db: Session = Depends(get_d
         logger.error(error)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@router.get("/all", response_model=List[schemas.ServiceProviderInDBBase])
+@router.get("/all")
 def read_service_providers(db: Session = Depends(get_db)):
     return crud.provider.get_all(db)
 
