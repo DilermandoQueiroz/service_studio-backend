@@ -2,7 +2,7 @@ from typing import List
 
 import crud
 import schemas
-from dependencies import get_db
+from .dependencies import get_db
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from firebase_utils import validate_token

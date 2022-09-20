@@ -3,7 +3,7 @@ from typing import List
 import crud
 import schemas
 from custom_logger import custom_logger
-from dependencies import get_db
+from .dependencies import get_db
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from firebase_utils import validate_token
 from sqlalchemy.orm import Session
