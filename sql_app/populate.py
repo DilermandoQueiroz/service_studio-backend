@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 import crud
 import schemas
-from database import SessionLocal
+from db import SessionLocal
 
 session = SessionLocal()
 

@@ -4,7 +4,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from database import Base
+from db import Base
 
 
 association_table_service_provider_studio = Table(
