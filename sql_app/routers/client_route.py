@@ -2,7 +2,7 @@ from typing import List
 
 import crud
 import schemas
-from .dependencies import get_db
+from .dependencies import get_db, validate_token_client
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from firebase_utils import validate_token
@@ -66,3 +66,12 @@ def remove_client_by_name(name: str = None, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Name not exists")
     
     return response
+
+@router.get("/name", response_model=schemas.ClientShowSell, dependencies=[Depends(validate_token_client)])
+def get_client_name_by_email(email: str = None, db: Session = Depends(get_db)):
+    db_client_email = crud.client.get_by_email(db=db, email=email)
+
+    if db_client_email:
+        return schemas.ClientShowSell(display_name = db_client_email.display_name)
+    else:
+        raise HTTPException(status_code=400, detail="This user not exist")
