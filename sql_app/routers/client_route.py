@@ -28,31 +28,24 @@ router = APIRouter(
 #     return db_client
 
 @router.post("/create", response_model = schemas.ClientCreate, status_code = status.HTTP_201_CREATED)
-def create_client(request: Request, client: schemas.ClientCreate, db: Session = Depends(get_db)):
+def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
     try:
-        user = validate_token(request.headers['authorization'])
-        if user:
-            db_client_cpf = crud.client.get_by_cpf(db=db, cpf=client.cpf)
-            db_client_name = crud.client.get_by_name(db=db, name=client.name)
-            db_client_email = crud.client.get_by_email(db=db, email=client.email)
-            exceptions = []
+        db_client_name = crud.client.get_by_name(db=db, name=client.name)
+        db_client_email = crud.client.get_by_email(db=db, email=client.email)
+        exceptions = []
 
-            if db_client_name:
-                exceptions.append("name")
-            if db_client_cpf:
-                exceptions.append("cpf")
-            if db_client_email:
-                exceptions.append("email")
+        if db_client_name:
+            exceptions.append("name")
+        if db_client_email:
+            exceptions.append("email")
 
-            if len(exceptions) > 0:
-                raise HTTPException(status_code=400, detail=f"{', '.join(exceptions)} already registered")
+        if len(exceptions) > 0:
+            raise HTTPException(status_code=400, detail=f"{', '.join(exceptions)} already registered")
 
-            return crud.client.create(db=db, obj_in=client)
-        else:
-            raise  HTTPException(status_code=400, detail="The code is not valid")
+        return crud.client.create(db=db, obj_in=client)
     except Exception as error:
         logger.error(error)
-        print(error)
+        raise error
 
 @router.get("/all", response_model=List[schemas.ClientInDBBase])
 def read_clients(db: Session = Depends(get_db)):
