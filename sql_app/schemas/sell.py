@@ -14,14 +14,14 @@ class SellCreate(BaseModel):
     client_rate: Optional[int] = None
     service_provider_rate: Optional[int] = None
     client_suggestion_desc: Optional[str] = Field(None, max_length=140)
-    client_satisfied: Optional[bool] = None
     number_of_sessions: Optional[int] = Field(1, ge=1)
     client_contract_confirmed: Optional[bool] = None
     service_provider_contract_confirmed: Optional[bool] = None
     start_time: datetime
     last_update: Optional[datetime] = None
     finish_time: Optional[datetime] = None 
-
+    description: Optional[str] = Field(None, max_length=255)
+    
     class Config:
         orm_mode = True
 
