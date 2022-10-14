@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("DB_URL")
 # SQLALCHEMY_DATABASE_URL = "postgresql://postgres:mysecretpassword@localhost/tattoo_python"
 # SQLALCHEMY_DATABASE_URL = "postgresql://easeservice:easeservice@db:5432/tattoo_python"
 
