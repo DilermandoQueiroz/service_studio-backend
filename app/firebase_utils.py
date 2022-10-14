@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 from firebase_admin import credentials, initialize_app, auth
-import schemas
+import app.schemas as schemas
 
-cred = credentials.Certificate("shared/firebase-private-key.json")
+cred = credentials.Certificate("app/shared/firebase-private-key.json")
 firebase_app = initialize_app(cred)
 
 def validate_token(header_autorization: str):

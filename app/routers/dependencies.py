@@ -1,7 +1,7 @@
 from fastapi import HTTPException, Request
-from db import SessionLocal
-from firebase_utils import validate_token
-from custom_logger import custom_logger
+from app.db import SessionLocal
+from app.firebase_utils import validate_token
+from app.custom_logger import custom_logger
 
 logger = custom_logger(__name__)
 

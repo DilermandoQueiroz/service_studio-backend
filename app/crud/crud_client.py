@@ -4,8 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from .base import CRUDBase
-from models import Client
-from schemas import ClientCreate, ClientInDBBase
+from app.models import Client
+from app.schemas import ClientCreate, ClientInDBBase
 
 
 class CRUDClient(CRUDBase[Client, ClientCreate, ClientInDBBase]):

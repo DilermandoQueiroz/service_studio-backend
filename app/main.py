@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import custom_logger as logging
-from .db import Base, engine
-from .routers import (client_route, sell_route, service_provider_route,
+import app.custom_logger as logging
+from app.db import Base, engine
+from app.routers import (client_route, sell_route, service_provider_route,
                      studio_route)
 
 Base.metadata.create_all(bind=engine)

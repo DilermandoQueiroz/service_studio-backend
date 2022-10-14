@@ -4,8 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from .base import CRUDBase
-from models import ServiceProvider
-from schemas import ServiceProviderCreate, ServiceProviderInDBBase
+from app.models import ServiceProvider
+from app.schemas import ServiceProviderCreate, ServiceProviderInDBBase
 
 
 class CRUDServiceProvider(CRUDBase[ServiceProvider, ServiceProviderCreate, ServiceProviderInDBBase]):

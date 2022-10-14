@@ -2,9 +2,9 @@ from random import choice, randint
 
 from sqlalchemy.orm import Session
 
-import crud
-import schemas
-from db import SessionLocal
+import app.crud as crud
+import app.schemas as schemas
+from app.db import SessionLocal
 
 session = SessionLocal()
 

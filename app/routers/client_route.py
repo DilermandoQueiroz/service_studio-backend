@@ -1,12 +1,12 @@
 from typing import List
 
-import crud
-import schemas
+import app.crud as crud
+import app.schemas as schemas
 from .dependencies import get_db, validate_token_client
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from firebase_utils import validate_token
-from custom_logger import custom_logger
+from app.firebase_utils import validate_token
+from app.custom_logger import custom_logger
 
 logger = custom_logger(__name__)
 
