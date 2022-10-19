@@ -113,15 +113,17 @@ def read_service_providers(db: Session = Depends(get_db)):
     return crud.provider.get_all(db)
 
 @router.get("/clients", response_model=List[schemas.ClientInDBBase])
-def get_provider_clients(request: Request, db: Session = Depends(get_db)):
-    user = validate_token(request.headers['authorization'])
-    if user:
-        db_clients_email = crud.sell.get_clients_unique_by_provider_email(db=db, service_provider_email=user["email"])
-        if db_clients_email:
-            db_clients = crud.client.get_by_email_list(db=db, emails=db_clients_email)
-            return db_clients
-        
-        return db_clients_email
+def get_provider_clients(db: Session = Depends(get_db), user = Depends(validate_token_client)):
+    db_clients_email = crud.sell.get_clients_unique_by_provider_email(db=db, service_provider_email=user["email"])
+    if db_clients_email:
+        db_clients = crud.client.get_by_email_list(db=db, emails=db_clients_email)
+        return db_clients
+    
+    return db_clients_email
+
+@router.get("/sells")
+def get_provider_sells(db: Session = Depends(get_db), user = Depends(validate_token_client)):
+    return crud.sell.get_by_provider_email(db=db, service_provider_email=user["email"])
 
 # TODO: For what?
 # @app.get("/sell_by_email/", response_model=List[schemas.SellInDBBase])
