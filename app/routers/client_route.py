@@ -40,7 +40,7 @@ def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
             exceptions.append("email")
 
         if len(exceptions) > 0:
-            raise HTTPException(status_code=400, detail=f"{', '.join(exceptions)} already registered")
+            raise HTTPException(status_code=422, detail=f"{', '.join(exceptions)} already registered")
 
         return crud.client.create(db=db, obj_in=client)
     except Exception as error:
