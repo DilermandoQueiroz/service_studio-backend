@@ -1,26 +1,15 @@
-from datetime import date
-from typing import Optional
-
-from pydantic import BaseModel, EmailStr, Field, validator
-
-
-class BaseServiceProvider(BaseModel):
-    display_name: str = Field(..., max_length=36)
-    email: EmailStr
-
-class ServiceProviderFireBase(BaseServiceProvider):
-    password: str
-
-class ServiceProviderDB(BaseServiceProvider):
-    name: str = Field(..., max_length=36)
-
-class ServiceProviderInDBBase(ServiceProviderDB):
-    id: int
-    name: str = Field(..., max_length=36)
-    display_name: str = Field(..., max_length=36)
-    email: EmailStr
+from pydantic import UUID4, BaseModel, Field
+from .person import PersonUpdate, PersonBase
 
 class ServiceProviderCreate(BaseModel):
-    email: EmailStr
+    id: str = Field(..., max_length=36)
+    person_id: UUID4
+
+class ServiceProviderCreateFirebase(PersonBase):
     password: str
-    display_name: str = Field(..., max_length=36)
+
+class ServiceProviderInDb(ServiceProviderCreate):
+    ...
+
+class ServiceProviderUpdate(PersonUpdate):
+    ...

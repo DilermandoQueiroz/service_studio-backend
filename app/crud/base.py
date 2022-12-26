@@ -29,11 +29,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get_by_email(self, db: Session, email: str) -> Optional[ModelType]:
         return db.query(self.model).filter(self.model.email == email).first()
 
-    def get_by_provider_email(self, db: Session, email: str) -> Optional[ModelType]:
-        return db.query(self.model).filter(self.model.email == email).first()
+    def get_by_id_list(self, db: Session, ids: list) -> Optional[ModelType]:
+        return db.query(self.model).filter(self.model.id.in_(ids)).all()
 
-    def get_by_name(self, db: Session, name: str) -> Optional[ModelType]:
-        return db.query(self.model).filter(self.model.name == name).first()
+    def get_by_id(self, db: Session, id: str) -> Optional[ModelType]:
+        return db.query(self.model).filter(self.model.id == id).first()
     
     def get_all(self, db: Session) -> List[ModelType]:
         return db.query(self.model).all()
@@ -70,8 +70,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return db_obj
 
-    def remove_by_name(self, db: Session, *, name: str) -> ModelType:
-        obj = self.get_by_name(db=db, name=name)
+    def remove_by_id(self, db: Session, *, id: str) -> ModelType:
+        obj = self.get_by_id(db=db, id=id)
         
         if obj:
             db.delete(obj)

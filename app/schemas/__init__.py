@@ -1,7 +1,9 @@
-from .studio import StudioCreate, StudioInDBBase
-from .service_provider import (
-    ServiceProviderCreate, ServiceProviderInDBBase,
-    ServiceProviderFireBase, ServiceProviderDB
+from .person import (
+    PersonCreate, PersonInfo, PersonUpdate, PersonBase, PersonInDb
 )
-from .client import ClientCreate, ClientInDBBase, ClientShowSell, ClientDisplay
-from .sell import SellCreate, SellInDBBase
+from .studio import StudioCreate, StudioUpdate, StudioInDb
+from .service_provider import (
+    ServiceProviderCreate, ServiceProviderUpdate,
+    ServiceProviderCreateFirebase
+)
+from .sell import SellCreate, SellUpdate, SellInDBBase

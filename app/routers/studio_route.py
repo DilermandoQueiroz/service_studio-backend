@@ -45,6 +45,6 @@ router = APIRouter(
     
 #     return response
 
-@router.get("/all", response_model=List[schemas.StudioInDBBase])
+@router.get("/all", response_model=List[schemas.StudioInDb])
 def read_studios(db: Session = Depends(get_db)):
     return crud.studio.get_all(db)

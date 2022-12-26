@@ -1,4 +1,3 @@
 from .models import (
-    Studio, ServiceProvider, Client, Sell,
-    ServiceStyle, ServiceTender, Base
+    Person, Studio, ServiceProvider, Sell, Base
 )

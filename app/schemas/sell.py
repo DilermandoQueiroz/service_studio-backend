@@ -1,30 +1,31 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 class SellCreate(BaseModel):
-    studio_name: Optional[str] = Field(None, max_length=36)
-    client_name: str = Field(..., max_length=36)
-    service_provider_name: str = Field(..., max_length=36)
-    service_style_name: Optional[str] = Field(None, max_length=36)
-    tender_id: Optional[int] = Field(None, ge=0)
+    studio_id: Optional[UUID4]
+    client_id: UUID4
+    service_provider_id: str = Field(..., max_length=36)
+    
     price: float = Field(0.0, ge=0.0)
-    studio_rate: Optional[int] = Field(0, ge=0, le=5)
-    client_rate: Optional[int] = None
-    service_provider_rate: Optional[int] = None
-    client_suggestion_desc: Optional[str] = Field(None, max_length=140)
-    number_of_sessions: Optional[int] = Field(1, ge=1)
-    client_contract_confirmed: Optional[bool] = None
-    service_provider_contract_confirmed: Optional[bool] = None
     start_time: datetime
-    last_update: Optional[datetime] = None
-    finish_time: Optional[datetime] = None 
+    actual_session: Optional[int] = Field(1, ge=1)
+    scheduled_time: Optional[datetime]
     description: Optional[str] = Field(None, max_length=255)
+    finished: Optional[bool] = None
     
     class Config:
         orm_mode = True
 
+class SellUpdate(BaseModel):
+    id: UUID4
+    price: Optional[float] = Field(0.0, ge=0.0)
+    actual_session: Optional[int] = Field(1, ge=1)
+    scheduled_time: Optional[datetime]
+    description: Optional[str] = Field(None, max_length=255)
+    finished: Optional[bool] = None
+
 class SellInDBBase(SellCreate):
-    id: int
+    id: UUID4
     

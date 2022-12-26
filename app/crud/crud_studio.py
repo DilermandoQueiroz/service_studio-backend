@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 
 from .base import CRUDBase
 from app.models import Studio
-from app.schemas import StudioCreate, StudioInDBBase
+from app.schemas import StudioCreate, StudioUpdate
 
 
-class CRUDStudio(CRUDBase[Studio, StudioCreate, StudioInDBBase]):
+class CRUDStudio(CRUDBase[Studio, StudioCreate, StudioUpdate]):
     ...
 
 

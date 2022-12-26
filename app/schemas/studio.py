@@ -1,10 +1,9 @@
-from typing import Optional, Union
+from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
 class StudioCreate(BaseModel):
-    name: str = Field(..., max_length=36)
-    display_name: str = Field(..., max_length=36)
+    studio_name: str = Field(..., max_length=36)
     country: Optional[str] = Field(None, max_length=3, min_length=2) 
     state: Optional[str] = Field(None, max_length=2)
     city: Optional[str] = Field(None, max_length=32)
@@ -13,15 +12,17 @@ class StudioCreate(BaseModel):
     number: Optional[int] = Field(0, ge=0)
     zip_code: Optional[str] = Field(None, max_length=10)
     complement: Optional[str] = Field(None, max_length=15)
-    email: Optional[EmailStr] = None
-    phone_number: Optional[str] = Field(None, max_length=20)
+    email_studio: Optional[EmailStr] = None
     description: Optional[str] = Field(None, max_length=255)
-    email_owner: EmailStr
 
     class Config:
         orm_mode = True
 
-class StudioInDBBase(StudioCreate):
-    id: int
-    email: Union[str , None] = None
-    email_owner: str
+class StudioUpdate(BaseModel):
+    ...
+
+class StudioInDb(StudioCreate):
+    id: str = Field(..., max_length=36)
+
+    class Config:
+        orm_mode = True

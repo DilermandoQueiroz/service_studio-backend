@@ -16,51 +16,36 @@ router = APIRouter(
     tags=["Service Provider"],
 )
 
-# TODO: validate token
-# @router.get("/", response_model = schemas.ServiceProviderInDBBase)
-# def read_service_provider_by(name: str = None, cpf: str = None, email: str = None, db: Session = Depends(get_db)):
-#     db_service_provider = False
-
-#     if name:
-#         db_service_provider = crud.provider.get_by_name(db=db, name=name)
-#     elif email:
-#         db_service_provider = crud.provider.get_by_email(db=db, email=email)
-#     elif cpf:
-#         db_service_provider = crud.provider.get_by_cpf(db=db, cpf=cpf)
-
-#     if not db_service_provider:
-#         raise HTTPException(status_code=404, detail="Service provider not found")
-    
-#     return db_service_provider
-
 @router.post("/create", status_code = status.HTTP_201_CREATED)
-def create_service_provider(service_provider: schemas.ServiceProviderCreate, db: Session = Depends(get_db)):
+def create_service_provider(service_provider: schemas.ServiceProviderCreateFirebase, db: Session = Depends(get_db)):
     user = False
     try:
         if crud.provider.get_by_email(db=db, email=service_provider.email):
-            raise HTTPException(status_code=422, detail=f"Email already registered")
-            
-        user_firebase = schemas.ServiceProviderFireBase(
-            display_name=service_provider.display_name,
-            email=service_provider.email,
-            password=service_provider.password,
-        )
-        user = create_service_provider_firebase(user_firebase)
+            raise HTTPException(status_code=422, detail=f"Provider already registered")
+        
+        user = create_service_provider_firebase(service_provider)
 
         if user:
-            db_service_provider_name = crud.provider.get_by_name(db=db, name=user.uid)
-            exceptions = []
+            db_service_provider_id = crud.provider.get_by_id(db=db, id=user.uid)
 
-            if db_service_provider_name:
-                exceptions.append("name")
+            if db_service_provider_id:
+                raise HTTPException(status_code=422, detail=f"Provider already registered")
 
-            if exceptions:
-                raise HTTPException(status_code=422, detail=f"{', '.join(exceptions)} already registered")
+            person = crud.person.get_by_email(db=db, email=service_provider.email)
 
-            user_db = schemas.ServiceProviderDB(
-                name=user.uid,
-                display_name=service_provider.display_name,
-                email=service_provider.email
+            if person:
+                person_db = person
+            else:
+                person = schemas.PersonCreate(
+                    display_name=service_provider.display_name,
+                    email=service_provider.email
+                )
+                
+                person_db = crud.person.create(db=db, obj_in=person)
+            
+            user_db = schemas.ServiceProviderCreate(
+                id=user.uid,
+                person_id=person_db.id
             )
 
             crud.provider.create(db=db, obj_in=user_db)
@@ -72,34 +57,18 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreate, db:
         raise error
     finally:
         if user:
-            db_service_provider_name = crud.provider.get_by_name(db=db, name=user.uid)
+            db_service_provider_name = crud.provider.get_by_id(db=db, id=user.uid)
             if not db_service_provider_name:
                 delete_by_user_uid(user.uid)
 
-@router.get("/remove2")
-def remove_service_provider_by_name(uid: str = None, db: Session = Depends(get_db)):
-    try:
-        response = crud.provider.remove_by_name(db=db, name=uid)
-        if not response:
-            raise HTTPException(status_code=400, detail="Uid not exists")
-        
-        delete_by_user_uid(uid)
-
-        return response
-    except Exception as error:
-        logger.error(error)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
 @router.get("/remove")
 def remove_service_provider_by_email(db: Session = Depends(get_db), user = Depends(validate_token_client)):
-    # TODO: remove sell with the service provider
     try:
-        print("comecei")
         crud.sell.delete_sell_by_email_service_provider(db=db, service_provider_email=user["email"])
-        response = crud.provider.remove_by_email(db=db, email=user["email"])
+        response = crud.person.remove_by_email(db=db, email=user["email"])
 
         if not response:
-            raise HTTPException(status_code=400, detail="Uid not exists")
+            raise HTTPException(status_code=400, detail="Email not exists")
         
         delete_by_user_uid(user["user_id"])
 
@@ -112,25 +81,10 @@ def remove_service_provider_by_email(db: Session = Depends(get_db), user = Depen
 def read_service_providers(db: Session = Depends(get_db)):
     return crud.provider.get_all(db)
 
-@router.get("/clients", response_model=List[schemas.ClientInDBBase])
+@router.get("/clients", response_model=List[schemas.PersonInfo])
 def get_provider_clients(db: Session = Depends(get_db), user = Depends(validate_token_client)):
-    db_clients_email = crud.sell.get_clients_unique_by_provider_email(db=db, service_provider_email=user["email"])
-    if db_clients_email:
-        db_clients = crud.client.get_by_email_list(db=db, emails=db_clients_email)
-        return db_clients
-    
-    return db_clients_email
+    return crud.provider.get_clients(db=db, id=user["user_id"])
 
 @router.get("/sells")
 def get_provider_sells(db: Session = Depends(get_db), user = Depends(validate_token_client)):
-    return crud.sell.get_by_provider_email(db=db, service_provider_email=user["email"])
-
-# TODO: For what?
-# @app.get("/sell_by_email/", response_model=List[schemas.SellInDBBase])
-# def sell_by_email(request: Request, db: Session = Depends(get_db)):
-#     user = validate_token(request.headers['authorization'])
-#     if user:
-#         db_client = crud.sell.get_by_provider_email(db=db, service_provider_email=user['email'])
-#         if db_client is None:
-#             raise HTTPException(status_code=404, detail="Clients not found")
-#         return db_client
+    return crud.sell.get_by_provider_id(db=db, id=user["user_id"])

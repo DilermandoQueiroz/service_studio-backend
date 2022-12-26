@@ -1,83 +1,58 @@
 from sqlalchemy import (
     Boolean, Column, Integer, String, Numeric,
-    ForeignKey, DateTime, Table, Date
+    ForeignKey, DateTime, Table
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
 from app.db import Base
 
+association_table_owner_studio = Table(
+    "owner_studio",
+    Base.metadata,
+    Column("studio_id", ForeignKey("studio.id")),
+    Column("person_id", ForeignKey("person.id")),
+)
 
 association_table_service_provider_studio = Table(
-    "service_provider_studio",
+   "service_provider_studio",
     Base.metadata,
-    Column("studio_id", Integer(), ForeignKey("studio.id"), unique=True),
-    Column("service_provider_id", Integer(), ForeignKey("service_provider.id"), unique=True),
-    Column("comission", Numeric(), nullable=False),
+    Column("studio_id", ForeignKey("studio.id")),
+    Column("service_provider_id", ForeignKey("service_provider.id")),
+    Column("comission", Numeric(), nullable=False)
 )
 
-association_table_service_style = Table(
-    "service_style_provider",
-    Base.metadata,
-    Column("service_provider_id", Integer(), ForeignKey("service_provider.id"), unique=True),
-    Column("service_style_id", Integer(), ForeignKey("service_style.id"), unique=True)
-)
-
-class Studio(Base):
-    __tablename__ = "studio"
+class Person(Base):
+    __tablename__ = "person"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(36), unique=True, nullable=False)
-    display_name = Column(String(32), nullable=False)
-    country = Column(String(3), nullable=True)
-    state = Column(String(2), nullable=True)
-    city = Column(String(32), nullable=True)
-    district = Column(String(100), nullable=True)
-    address = Column(String(100), nullable=True)
-    number = Column(Integer(), nullable=True)
-    zip_code = Column(String(10), nullable=True)
-    complement = Column(String(15), nullable=True)
-    email = Column(String(50), nullable=True)
-    phone_number = Column(String(20), nullable=True)
-    description = Column(String(255), nullable=True)
-    email_owner = Column(String(50), unique=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    display_name = Column(String(36), unique=False, nullable=False)
+    email = Column(String(50), unique=True, nullable=False)
 
-    sell = relationship("Sell", back_populates="studio", uselist=False)
-    service_providers = relationship("ServiceProvider", secondary=association_table_service_provider_studio, back_populates="studios")
+    sell = relationship("Sell", uselist=False, back_populates="client", cascade="all, delete")
+    studio_owner = relationship("Studio", secondary=association_table_owner_studio, back_populates="person_owner")
+    service_provider = relationship("ServiceProvider", uselist=False, back_populates="person", cascade="all, delete")
 
 class ServiceProvider(Base):
     __tablename__ = "service_provider"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(36), unique=True, nullable=False)
-    display_name = Column(String(32), nullable=False)
-    birth_date = Column(Date(), nullable=True)
-    cpf = Column(String(11), nullable=True, unique=True)
-    email = Column(String(50), unique=True, nullable=False)
-    phone_number = Column(String(20), nullable=True)
-    description = Column(String(255), nullable=True)
+    id = Column(String(36), primary_key=True, unique=True, nullable=False)
+    person_id = Column(UUID, ForeignKey("person.id"), nullable=False, unique=True)
+
+    sell = relationship("Sell", uselist=False, back_populates="service_provider")
     studios = relationship("Studio", secondary=association_table_service_provider_studio, back_populates="service_providers")
-    sell = relationship("Sell", back_populates="service_provider", uselist=False)
-    country = Column(String(3), nullable=True)
-    state = Column(String(2), nullable=True)
-    city = Column(String(32), nullable=True)
-    district = Column(String(100), nullable=True)
-    address = Column(String(100), nullable=True)
-    number = Column(Integer(), nullable=True)
-    zip_code = Column(String(10), nullable=True)
-    complement = Column(String(15), nullable=True)
+    person = relationship("Person", back_populates="service_provider")
 
-
-class Client(Base):
-    __tablename__ = "client"
+class Studio(Base):
+    __tablename__ = "studio"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(36), unique=True, nullable=False)
-    display_name = Column(String(32), nullable=False)
-    birth_date = Column(Date(), nullable=False)
-    cpf = Column(String(11), nullable=True, unique=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    studio_name = Column(String(36), unique=True, nullable=False)
     country = Column(String(3), nullable=True)
     state = Column(String(2), nullable=True)
     city = Column(String(32), nullable=True)
@@ -86,66 +61,29 @@ class Client(Base):
     number = Column(Integer(), nullable=True)
     zip_code = Column(String(10), nullable=True)
     complement = Column(String(15), nullable=True)
-    email = Column(String(50), unique=True, nullable=False)
-    phone_number = Column(String(20), nullable=True)
-    sell = relationship("Sell", back_populates="client", uselist=False)
+    email_studio = Column(String(50), nullable=True)
+    description = Column(String(255), nullable=True)
 
+    sell = relationship("Sell")
+    service_providers = relationship("ServiceProvider", secondary=association_table_service_provider_studio, back_populates="studios")
+    person_owner = relationship("Person", secondary=association_table_owner_studio, back_populates="studio_owner")
 
 class Sell(Base):
     __tablename__ = "sell"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    """
-    ForeignKey Start
-    """
-    studio_name = Column(String(36), ForeignKey("studio.email_owner"), nullable=True, unique=False)
-    client_name = Column(String(36), ForeignKey("client.email"), nullable=False, unique=False)
-    service_provider_name = Column(String(36), ForeignKey("service_provider.email"), nullable=False, unique=False)
-    service_style_name = Column(String(32), ForeignKey("service_style.name"), nullable=True, unique=False)
-    tender_id = Column(Integer(), ForeignKey("service_tender.id"), nullable=True)
-    """
-    ForeignKey finish
-    """
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    studio_id = Column(UUID, ForeignKey("studio.id"), nullable=True, unique=False)
+    client_id = Column(UUID, ForeignKey("person.id"), nullable=False, unique=False)
+    service_provider_id = Column(String(36), ForeignKey("service_provider.id"), nullable=False, unique=False)
+
     price = Column(Numeric(asdecimal=True), nullable=False)
-    studio_rate = Column(Integer(), nullable=True)
-    client_rate = Column(Integer(), nullable=True)
-    service_provider_rate = Column(Integer(), nullable=True)
-    client_suggestion_desc = Column(String(140), nullable=True)
-    number_of_sessions = Column(Integer(), nullable=True)
-    client_contract_confirmed = Column(Boolean(), nullable=True)
-    service_provider_contract_confirmed = Column(Boolean(), nullable=True)
     start_time = Column(DateTime(), nullable=False)
-    last_update = Column(DateTime(), nullable=True)
-    finish_time = Column(DateTime(), nullable=True)
+    actual_session = Column(Integer(), nullable=True)
+    scheduled_time = Column(DateTime(), nullable=False)
     description = Column(String(255), nullable=True)
-    """
-    Relationship start
-    """
-    studio = relationship("Studio", back_populates="sell")
+    finished = Column(Boolean(), nullable=True)
+
+    client = relationship("Person", back_populates="sell")
     service_provider = relationship("ServiceProvider", back_populates="sell")
-    client = relationship("Client", back_populates="sell")
-    service_style = relationship("ServiceStyle", back_populates="sell")
-    tender = relationship("ServiceTender", back_populates="sell")
-
-
-class ServiceStyle(Base):
-    __tablename__ = "service_style"
-    __table_args__ = {'extend_existing': True}
-
-    id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    name = Column(String(36), unique=True, nullable=False)
-    display_name = Column(String(32), nullable=False)
-    type = Column(String(32), nullable=False)
-    sell = relationship("Sell", back_populates="service_style", uselist=False)
-
-class ServiceTender(Base):
-    __tablename__ = "service_tender"
-    __table_args__ = {'extend_existing': True}
-
-    id = Column(Integer(), primary_key=True, index=True, autoincrement=True)
-    signal = Column(Numeric(asdecimal=True), nullable=True)
-    body_local = Column(String(15), nullable=True)
-    price = Column(Numeric(asdecimal=True), nullable=True)
-    photo = Column(String(8000), nullable=True)
-    sell = relationship("Sell", back_populates="tender", uselist=False)
