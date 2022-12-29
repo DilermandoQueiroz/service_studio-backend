@@ -1,5 +1,4 @@
-import email
-from typing import List, Optional
+import datetime
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
@@ -17,4 +16,17 @@ class CRUDSell(CRUDBase[Sell, SellCreate, SellUpdate]):
             Person.display_name, Person.email
             ).join(Person.sell).filter(self.model.service_provider_id == id).all()
     
+    def get_next_sells(self, db: Session, id: str) -> SellInfo:
+        current_time = datetime.datetime.utcnow()
+
+        return db.query(
+            self.model,
+            Person.display_name,
+            Person.email
+            ).join(Person.sell).filter(
+                self.model.service_provider_id == id,
+                self.model.finished == False,
+                self.model.scheduled_time > current_time
+            ).first()
+
 sell = CRUDSell(Sell)

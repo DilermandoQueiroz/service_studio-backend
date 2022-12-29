@@ -91,3 +91,7 @@ def get_provider_clients(db: Session = Depends(get_db), user = Depends(validate_
 @router.get("/sells")
 def get_provider_sells(db: Session = Depends(get_db), user = Depends(validate_token_client)):
     return crud.sell.get_by_provider_id(db=db, id=user["user_id"])
+
+@router.get("/nextsells")
+def get_provider_next_sells(db: Session = Depends(get_db), user = Depends(validate_token_client)):
+    return crud.sell.get_next_sells(db=db, id=user["user_id"])
