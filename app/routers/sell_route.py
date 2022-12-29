@@ -16,12 +16,11 @@ router = APIRouter(
 )
 
 @router.post("/create", response_model=schemas.SellCreate, status_code = status.HTTP_201_CREATED) #dependencies=[Depends(validate_token_client)])
-def create_sell(sell: schemas.SellCreate, db: Session = Depends(get_db)):
+def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user = Depends(validate_token_client)):
     try:
-        db_service_provider = crud.provider.get_by_id(db=db, id=sell.service_provider_id)
-        db_client = crud.person.get_by_id(db=db, id=sell.client_id)
+        db_service_provider = crud.provider.get_by_id(db=db, id=user["user_id"])
+        db_client = crud.person.get_by_email(db=db, email=sell.client_email)
         exceptions = []
-
         if sell.studio_id:
             db_studio = crud.studio.get_by_id(db=db, id=sell.studio_id)
 
@@ -35,8 +34,20 @@ def create_sell(sell: schemas.SellCreate, db: Session = Depends(get_db)):
 
         if len(exceptions) > 0:
             raise HTTPException(status_code=404, detail=f"{', '.join(exceptions)} not exists")
+       
+        sell_in = schemas.SellCreate(
+            studio_id = sell.studio_id,
+            client_id = db_client.id,
+            service_provider_id = user["user_id"],
+            price = sell.price,
+            start_time = sell.start_time,
+            actual_session = sell.actual_session,
+            scheduled_time = sell.scheduled_time,
+            description = sell.description,
+            finished = sell.finished
+        )
 
-        return crud.sell.create(db=db, obj_in=sell)
+        return crud.sell.create(db=db, obj_in=sell_in)
     except Exception as error:
         logger.error(error)
         raise error

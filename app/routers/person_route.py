@@ -44,9 +44,9 @@ def remove_person_by_email(email: str = None, db: Session = Depends(get_db)):
     
     return response
 
-@router.get("/name", response_model=schemas.PersonInfo, dependencies=[Depends(validate_token_client)])
+@router.get("/", response_model=schemas.PersonInfo, dependencies=[Depends(validate_token_client)])
 def get_person_name_by_email(email: str = None, db: Session = Depends(get_db)):
-    db_person_email = crud.client.get_by_email(db=db, email=email)
+    db_person_email = crud.person.get_by_email(db=db, email=email)
 
     if db_person_email:
         return schemas.PersonInfo(display_name=db_person_email.display_name, email=email)

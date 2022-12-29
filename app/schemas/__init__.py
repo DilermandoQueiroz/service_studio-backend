@@ -6,4 +6,4 @@ from .service_provider import (
     ServiceProviderCreate, ServiceProviderUpdate,
     ServiceProviderCreateFirebase
 )
-from .sell import SellCreate, SellUpdate, SellInDBBase
+from .sell import SellCreate, SellUpdate, SellInDBBase, SellCreateApi, SellInfo

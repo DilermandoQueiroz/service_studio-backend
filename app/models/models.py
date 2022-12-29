@@ -30,6 +30,7 @@ class Person(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     display_name = Column(String(36), unique=False, nullable=False)
     email = Column(String(50), unique=True, nullable=False)
+    phone_number = Column(String(16), nullable=True)
 
     sell = relationship("Sell", uselist=False, back_populates="client", cascade="all, delete")
     studio_owner = relationship("Studio", secondary=association_table_owner_studio, back_populates="person_owner")
@@ -59,7 +60,7 @@ class Studio(Base):
     district = Column(String(100), nullable=True)
     address = Column(String(100), nullable=True)
     number = Column(Integer(), nullable=True)
-    zip_code = Column(String(10), nullable=True)
+    zip_code = Column(Integer(), nullable=True)
     complement = Column(String(15), nullable=True)
     email_studio = Column(String(50), nullable=True)
     description = Column(String(255), nullable=True)
@@ -81,7 +82,7 @@ class Sell(Base):
     price = Column(Numeric(asdecimal=True), nullable=False)
     start_time = Column(DateTime(), nullable=False)
     actual_session = Column(Integer(), nullable=True)
-    scheduled_time = Column(DateTime(), nullable=False)
+    scheduled_time = Column(DateTime(), nullable=True)
     description = Column(String(255), nullable=True)
     finished = Column(Boolean(), nullable=True)
 

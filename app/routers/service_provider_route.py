@@ -22,9 +22,12 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreateFireb
     try:
         if crud.provider.get_by_email(db=db, email=service_provider.email):
             raise HTTPException(status_code=422, detail=f"Provider already registered")
-        
-        user = create_service_provider_firebase(service_provider)
 
+        user = get_user_by_email(service_provider.email)
+
+        if not user:
+            user = create_service_provider_firebase(service_provider)
+        
         if user:
             db_service_provider_id = crud.provider.get_by_id(db=db, id=user.uid)
 

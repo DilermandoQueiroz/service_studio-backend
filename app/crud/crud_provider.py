@@ -19,7 +19,7 @@ class CRUDServiceProvider(CRUDBase[ServiceProvider, ServiceProviderCreate, Servi
         return test
 
     def get_clients(self, db: Session, id: str) -> List[PersonInfo]:
-        return db.query(Sell.client_id, Person.email, Person.display_name).join(Person.sell)\
+        return db.query(Person).join(Person.sell)\
                 .filter(Sell.service_provider_id == id).distinct().all()
 
 
