@@ -60,7 +60,7 @@ def update_sell_by_id(sell_in: schemas.SellUpdate, db: Session = Depends(get_db)
     sell = crud.sell.update(db=db, db_obj=sell, obj_in=sell_in)
     return sell
 
-@router.get("/remove")
+@router.delete("/remove")
 def remove_sell_by_id(id: str = None, db: Session = Depends(get_db)):
     response = crud.sell.remove_by_id(db=db, id=id)
 
