@@ -54,4 +54,7 @@ def get_user_by_uid(uid: str):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 def get_user_by_email(email: str):
-    return auth.get_user_by_email(email)
+    try:
+        return auth.get_user_by_email(email)
+    except:
+        return False

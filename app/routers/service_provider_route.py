@@ -18,18 +18,20 @@ router = APIRouter(
 
 @router.post("/create", status_code = status.HTTP_201_CREATED)
 def create_service_provider(service_provider: schemas.ServiceProviderCreateFirebase, db: Session = Depends(get_db)):
-    user = False
+    user_firebase = False
     try:
-        if crud.provider.get_by_email(db=db, email=service_provider.email):
+        db_service_provider = crud.provider.get_by_email(db=db, email=service_provider.email)
+
+        user_firebase = get_user_by_email(service_provider.email)
+
+        if user_firebase and db_service_provider:
             raise HTTPException(status_code=422, detail=f"Provider already registered")
 
-        user = get_user_by_email(service_provider.email)
+        if not user_firebase:
+            user_firebase = create_service_provider_firebase(service_provider)
 
-        if not user:
-            user = create_service_provider_firebase(service_provider)
-        
-        if user:
-            db_service_provider_id = crud.provider.get_by_id(db=db, id=user.uid)
+        if user_firebase:
+            db_service_provider_id = crud.provider.get_by_id(db=db, id=user_firebase.uid)
 
             if db_service_provider_id:
                 raise HTTPException(status_code=422, detail=f"Provider already registered")
@@ -47,7 +49,7 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreateFireb
                 person_db = crud.person.create(db=db, obj_in=person)
             
             user_db = schemas.ServiceProviderCreate(
-                id=user.uid,
+                id=user_firebase.uid,
                 person_id=person_db.id
             )
 
@@ -59,10 +61,10 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreateFireb
         logger.error(error)
         raise error
     finally:
-        if user:
-            db_service_provider_name = crud.provider.get_by_id(db=db, id=user.uid)
+        if user_firebase:
+            db_service_provider_name = crud.provider.get_by_id(db=db, id=user_firebase.uid)
             if not db_service_provider_name:
-                delete_by_user_uid(user.uid)
+                delete_by_user_uid(user_firebase.uid)
 
 @router.get("/remove")
 def remove_service_provider_by_email(db: Session = Depends(get_db), user = Depends(validate_token_client)):
