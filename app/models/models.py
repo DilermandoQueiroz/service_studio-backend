@@ -51,7 +51,7 @@ class Studio(Base):
     __tablename__ = "studio"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, unique=True, nullable=False)
 
     studio_name = Column(String(36), unique=True, nullable=False)
     country = Column(String(3), nullable=True)
@@ -75,7 +75,7 @@ class Sell(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    studio_id = Column(UUID, ForeignKey("studio.id"), nullable=True, unique=False)
+    studio_id = Column(String(36), ForeignKey("studio.id"), nullable=True, unique=False)
     client_id = Column(UUID, ForeignKey("person.id"), nullable=False, unique=False)
     service_provider_id = Column(String(36), ForeignKey("service_provider.id"), nullable=False, unique=False)
 

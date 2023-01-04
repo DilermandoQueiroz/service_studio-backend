@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import UUID4, BaseModel, EmailStr, Field
 
 class SellBasic(BaseModel):
-    studio_id: Optional[UUID4]
+    studio_id: Optional[str] = Field(None, max_length=36)
     
     price: float = Field(0.0, ge=0.0)
     start_time: datetime

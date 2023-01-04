@@ -15,25 +15,18 @@ router = APIRouter(
     tags=["Studio"],
 )
 
-# TODO: Create studio in firebase and database.
-# @router.post("/create", response_model = schemas.StudioCreate, status_code = status.HTTP_201_CREATED)
-# def create_studio_provider(request: Request, studio: schemas.StudioCreate, db: Session = Depends(get_db)):
-#     try:
-#         if validate_token(request.headers['authorization']):
-#             db_studio_name = crud.studio.get_by_name(db=db, name=studio.name)
-#             db_studio_owner_email = crud.studio.get_by_email(db=db, email=studio.email_owner)
+@router.post("/create", response_model = schemas.StudioCreate, status_code = status.HTTP_201_CREATED)
+def create_studio_provider(studio: schemas.StudioCreate, db: Session = Depends(get_db)):
+    try:
+        db_studio = crud.studio.get_by_id(db=db, id=studio.id)
 
-#             if db_studio_name:
-#                 raise HTTPException(status_code=400, detail="Name already registered")
-#             elif db_studio_owner_email:
-#                 raise HTTPException(status_code=400, detail="Owner email already registered")
+        if db_studio:
+            raise HTTPException(status_code=422, detail=f"Studio already registered")
 
-#             return crud.studio.create(db=db, obj_in=studio)
-#         else:
-#             raise HTTPException(status_code=401, detail="Email not verified")
-#     except Exception as error:
-#         logger.error(error)
-#         raise error
+        return crud.studio.create(db=db, obj_in=studio)
+    except Exception as error:
+        logger.error(error)
+        raise error
 
 # TODO: validate token
 # @router.get("/remove")

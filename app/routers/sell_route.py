@@ -36,7 +36,7 @@ def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user
             raise HTTPException(status_code=404, detail=f"{', '.join(exceptions)} not exists")
        
         sell_in = schemas.SellCreate(
-            studio_id = sell.studio_id,
+            studio_id = user["user_id"],
             client_id = db_client.id,
             service_provider_id = user["user_id"],
             price = sell.price,

@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 
 class StudioCreate(BaseModel):
+    id: str = Field(..., max_length=36)
     studio_name: str = Field(..., max_length=36)
     country: Optional[str] = Field(None, max_length=3, min_length=2) 
     state: Optional[str] = Field(None, max_length=2)
