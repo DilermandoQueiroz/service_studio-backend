@@ -8,20 +8,32 @@ import uuid
 
 from app.db import Base
 
-association_table_owner_studio = Table(
-    "owner_studio",
-    Base.metadata,
-    Column("studio_id", ForeignKey("studio.id")),
-    Column("person_id", ForeignKey("person.id")),
-)
+class StudioServiceProvider(Base):
+    __tablename__ = "studio_service_provider"
+    __table_args__ = {'extend_existing': True}
 
-association_table_service_provider_studio = Table(
-   "service_provider_studio",
-    Base.metadata,
-    Column("studio_id", ForeignKey("studio.id")),
-    Column("service_provider_id", ForeignKey("service_provider.id")),
-    Column("comission", Numeric(), nullable=False)
-)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    studio_id = Column(ForeignKey("studio.id"), nullable=False)
+    service_provider_id = Column(ForeignKey("service_provider.id"), nullable=False)
+    comission = Column(Numeric(asdecimal=True), nullable=True)
+    studio_accept = Column(Boolean(), nullable=True)
+    service_provider_accept = Column(Boolean(), nullable=True)
+
+
+    service_provider = relationship("ServiceProvider", back_populates="work_in")
+    studio = relationship("Studio", back_populates="receive_service_provider")
+
+class OwnerStudio(Base):
+    __tablename__ = "owner_studio"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    studio_id = Column(ForeignKey("studio.id"), nullable=False)
+    person_id = Column(ForeignKey("person.id"), nullable=False)
+    
+    person = relationship("Person", back_populates="studio_owner")
+    studio = relationship("Studio", back_populates="person_owner")
+
 
 class Person(Base):
     __tablename__ = "person"
@@ -33,27 +45,27 @@ class Person(Base):
     phone_number = Column(String(16), nullable=True)
 
     sell = relationship("Sell", uselist=False, back_populates="client", cascade="all, delete")
-    studio_owner = relationship("Studio", secondary=association_table_owner_studio, back_populates="person_owner")
+    studio_owner = relationship("OwnerStudio", back_populates="person")
     service_provider = relationship("ServiceProvider", uselist=False, back_populates="person", cascade="all, delete")
 
 class ServiceProvider(Base):
     __tablename__ = "service_provider"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(String(36), primary_key=True, unique=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     person_id = Column(UUID, ForeignKey("person.id"), nullable=False, unique=True)
 
     sell = relationship("Sell", uselist=False, back_populates="service_provider")
-    studios = relationship("Studio", secondary=association_table_service_provider_studio, back_populates="service_providers")
+    work_in = relationship("StudioServiceProvider", back_populates="service_provider")
     person = relationship("Person", back_populates="service_provider")
 
 class Studio(Base):
     __tablename__ = "studio"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(String(36), primary_key=True, unique=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    studio_name = Column(String(36), unique=True, nullable=False)
+    display_name = Column(String(36), unique=True, nullable=False)
     country = Column(String(3), nullable=True)
     state = Column(String(2), nullable=True)
     city = Column(String(32), nullable=True)
@@ -66,8 +78,8 @@ class Studio(Base):
     description = Column(String(255), nullable=True)
 
     sell = relationship("Sell")
-    service_providers = relationship("ServiceProvider", secondary=association_table_service_provider_studio, back_populates="studios")
-    person_owner = relationship("Person", secondary=association_table_owner_studio, back_populates="studio_owner")
+    receive_service_provider = relationship("StudioServiceProvider", back_populates="studio")
+    person_owner = relationship("OwnerStudio", back_populates="studio")
 
 class Sell(Base):
     __tablename__ = "sell"
@@ -75,9 +87,9 @@ class Sell(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    studio_id = Column(String(36), ForeignKey("studio.id"), nullable=True, unique=False)
+    studio_id = Column(UUID, ForeignKey("studio.id"), nullable=True, unique=False)
     client_id = Column(UUID, ForeignKey("person.id"), nullable=False, unique=False)
-    service_provider_id = Column(String(36), ForeignKey("service_provider.id"), nullable=False, unique=False)
+    service_provider_id = Column(UUID, ForeignKey("service_provider.id"), nullable=False, unique=False)
 
     price = Column(Numeric(asdecimal=True), nullable=False)
     start_time = Column(DateTime(), nullable=False)

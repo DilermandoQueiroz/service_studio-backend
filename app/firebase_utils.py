@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from firebase_admin import credentials, initialize_app, auth
+from pydantic import UUID4
 import app.schemas as schemas
 
 cred = credentials.Certificate("app/shared/firebase-private-key.json")
@@ -14,7 +15,11 @@ def validate_token(header_autorization: str):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-def create_service_provider_firebase(service_provider: schemas.ServiceProviderCreateFirebase):
+def create_service_provider_firebase(
+    service_provider: schemas.ServiceProviderCreateFirebase,
+    service_provider_id: UUID4 = None,
+    person_id: UUID4 = None
+    ):
     try:
         user = auth.create_user(
             email=service_provider.email,
@@ -22,13 +27,27 @@ def create_service_provider_firebase(service_provider: schemas.ServiceProviderCr
             display_name=service_provider.display_name
         )
         if user:
+            auth.set_custom_user_claims(user.uid, {
+                "service_provider_id": str(service_provider_id),
+                "person_id": str(person_id),
+                "studio_id": False
+            })
+
             return user
         
         return False
-    except Exception as error:
-        print(error)
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
-    
+
+def create_studio(uid: str, studio_id: UUID4):
+    user = get_user_by_uid(uid=uid)
+
+    auth.set_custom_user_claims(user.uid, {
+            "service_provider_id": user.custom_claims.get('service_provider_id'),
+            "person_id": user.custom_claims.get('person_id'),
+            "studio_id": str(studio_id)
+    })
+
 def delete_by_user_uid(uid: str):
     try:
         auth.delete_user(uid)

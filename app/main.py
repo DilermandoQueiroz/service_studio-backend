@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import app.custom_logger as logging
 from app.db import Base, engine
 from app.routers import (person_route, sell_route, service_provider_route,
-                     studio_route)
+                     studio_route, studio_service_provider)
 
 Base.metadata.create_all(bind=engine)
 
@@ -13,6 +13,7 @@ app.include_router(studio_route.router)
 app.include_router(service_provider_route.router)
 app.include_router(person_route.router)
 app.include_router(sell_route.router)
+app.include_router(studio_service_provider.router)
 origins = ["*"]
 logger = logging.custom_logger(__name__)
 

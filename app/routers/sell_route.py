@@ -3,9 +3,8 @@ from typing import List
 import app.crud as crud
 import app.schemas as schemas
 from app.custom_logger import custom_logger
-from .dependencies import get_db, validate_token_client
+from .dependencies import get_db, is_service_provider, validate_token_client
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from app.firebase_utils import validate_token
 from sqlalchemy.orm import Session
 
 logger = custom_logger(__name__)
@@ -16,9 +15,9 @@ router = APIRouter(
 )
 
 @router.post("/create", response_model=schemas.SellCreate, status_code = status.HTTP_201_CREATED) #dependencies=[Depends(validate_token_client)])
-def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user = Depends(validate_token_client)):
+def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user = Depends(is_service_provider)):
     try:
-        db_service_provider = crud.provider.get_by_id(db=db, id=user["user_id"])
+        db_service_provider = crud.provider.get_by_id(db=db, id=user["service_provider_id"])
         db_client = crud.person.get_by_email(db=db, email=sell.client_email)
         exceptions = []
         if sell.studio_id:
@@ -36,9 +35,9 @@ def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user
             raise HTTPException(status_code=404, detail=f"{', '.join(exceptions)} not exists")
        
         sell_in = schemas.SellCreate(
-            studio_id = user["user_id"],
+            studio_id = sell.studio_id,
             client_id = db_client.id,
-            service_provider_id = user["user_id"],
+            service_provider_id = user["service_provider_id"],
             price = sell.price,
             start_time = sell.start_time,
             actual_session = sell.actual_session,

@@ -1,3 +1,3 @@
 from .models import (
-    Person, Studio, ServiceProvider, Sell, Base
+    Person, Studio, ServiceProvider, Sell, Base, OwnerStudio, StudioServiceProvider
 )

@@ -3,7 +3,7 @@ from typing import List
 import app.crud as crud
 import app.schemas as schemas
 from app.custom_logger import custom_logger
-from .dependencies import get_db, validate_token_client
+from .dependencies import get_db, is_service_provider, validate_token_client
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from app.firebase_utils import (create_service_provider_firebase,
                             delete_by_user_uid, get_user_by_email, validate_token)
@@ -18,24 +18,8 @@ router = APIRouter(
 
 @router.post("/create", status_code = status.HTTP_201_CREATED)
 def create_service_provider(service_provider: schemas.ServiceProviderCreateFirebase, db: Session = Depends(get_db)):
-    user_firebase = False
     try:
-        db_service_provider = crud.provider.get_by_email(db=db, email=service_provider.email)
-
-        user_firebase = get_user_by_email(service_provider.email)
-
-        if user_firebase and db_service_provider:
-            raise HTTPException(status_code=422, detail=f"Provider already registered")
-
-        if not user_firebase:
-            user_firebase = create_service_provider_firebase(service_provider)
-
-        if user_firebase:
-            db_service_provider_id = crud.provider.get_by_id(db=db, id=user_firebase.uid)
-
-            if db_service_provider_id:
-                raise HTTPException(status_code=422, detail=f"Provider already registered")
-
+        def create_firebase_db():
             person = crud.person.get_by_email(db=db, email=service_provider.email)
 
             if person:
@@ -47,24 +31,52 @@ def create_service_provider(service_provider: schemas.ServiceProviderCreateFireb
                 )
                 
                 person_db = crud.person.create(db=db, obj_in=person)
-            
+                
+
             user_db = schemas.ServiceProviderCreate(
-                id=user_firebase.uid,
                 person_id=person_db.id
             )
+            
+            db_service_provider = crud.provider.create(db=db, obj_in=user_db)
+            
+            
+            create_service_provider_firebase(service_provider,
+                     service_provider_id=db_service_provider.id, person_id=person_db.id)
+            
 
-            crud.provider.create(db=db, obj_in=user_db)
+        db_service_provider = crud.provider.get_by_email(db=db, email=service_provider.email)
+        user_firebase = get_user_by_email(service_provider.email)
 
+        if user_firebase and db_service_provider:
+            raise HTTPException(status_code=422, detail=f"Provider already registered")
+
+        if db_service_provider and not user_firebase:
+            person = crud.person.get_by_email(db=db, email=service_provider.email)
+
+            if person:
+                person_db = person
+            else:
+                person = schemas.PersonCreate(
+                    display_name=service_provider.display_name,
+                    email=service_provider.email
+                )
+                
+                person_db = crud.person.create(db=db, obj_in=person)
+
+            create_service_provider_firebase(service_provider,
+                     service_provider_id=db_service_provider.id, person_id=person_db.id)
+        
+        elif user_firebase and not db_service_provider:
+            delete_by_user_uid(user_firebase.uid)
+            create_firebase_db()
+        else:
+            create_firebase_db()
+            
             return "ok"
             
     except Exception as error:
         logger.error(error)
         raise error
-    finally:
-        if user_firebase:
-            db_service_provider_name = crud.provider.get_by_id(db=db, id=user_firebase.uid)
-            if not db_service_provider_name:
-                delete_by_user_uid(user_firebase.uid)
 
 @router.get("/remove")
 def remove_service_provider_by_email(db: Session = Depends(get_db), user = Depends(validate_token_client)):
@@ -87,13 +99,13 @@ def read_service_providers(db: Session = Depends(get_db)):
     return crud.provider.get_all(db)
 
 @router.get("/clients", response_model=List[schemas.PersonInfo])
-def get_provider_clients(db: Session = Depends(get_db), user = Depends(validate_token_client)):
-    return crud.provider.get_clients(db=db, id=user["user_id"])
+def get_provider_clients(db: Session = Depends(get_db), user = Depends(is_service_provider)):
+    return crud.provider.get_clients(db=db, id=user["service_provider_id"])
 
 @router.get("/sells")
-def get_provider_sells(db: Session = Depends(get_db), user = Depends(validate_token_client)):
-    return crud.sell.get_by_provider_id(db=db, id=user["user_id"])
+def get_provider_sells(db: Session = Depends(get_db), user = Depends(is_service_provider)):
+    return crud.sell.get_by_provider_id(db=db, id=user["service_provider_id"])
 
 @router.get("/nextsells")
-def get_provider_next_sells(db: Session = Depends(get_db), user = Depends(validate_token_client)):
-    return crud.sell.get_next_sells(db=db, id=user["user_id"])
+def get_provider_next_sells(db: Session = Depends(get_db), user = Depends(is_service_provider)):
+    return crud.sell.get_next_sells(db=db, id=user["service_provider_id"])
