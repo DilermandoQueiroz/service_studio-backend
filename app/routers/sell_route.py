@@ -20,9 +20,10 @@ def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user
         db_service_provider = crud.provider.get_by_id(db=db, id=user["service_provider_id"])
         db_client = crud.person.get_by_email(db=db, email=sell.client_email)
         exceptions = []
-        if sell.studio_id:
-            db_studio = crud.studio.get_by_id(db=db, id=sell.studio_id)
-
+        studio_id = None
+        if sell.studio_email:
+            db_studio = crud.studio.get_by_email_studio(db=db, email=sell.studio_email)
+            studio_id = db_studio.id
             if not db_studio:
                 exceptions.append("studio")
 
@@ -35,7 +36,7 @@ def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user
             raise HTTPException(status_code=404, detail=f"{', '.join(exceptions)} not exists")
        
         sell_in = schemas.SellCreate(
-            studio_id = sell.studio_id,
+            studio_id = studio_id,
             client_id = db_client.id,
             service_provider_id = user["service_provider_id"],
             price = sell.price,
@@ -68,6 +69,6 @@ def remove_sell_by_id(id: str = None, db: Session = Depends(get_db)):
     
     return response
 
-@router.get("/all", response_model=List[schemas.SellInDBBase])
+@router.get("/all")
 def read_sells(db: Session = Depends(get_db)):
     return crud.sell.get_all(db)

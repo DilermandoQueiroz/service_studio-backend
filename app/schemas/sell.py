@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import UUID4, BaseModel, EmailStr, Field
 
 class SellBasic(BaseModel):
-    studio_id: Optional[str] = Field(None, max_length=36)
+    studio_id: UUID4
     
     price: float = Field(0.0, ge=0.0)
     start_time: datetime
@@ -16,8 +16,16 @@ class SellBasic(BaseModel):
     class Config:
         orm_mode = True
 
-class SellCreateApi(SellBasic):
+class SellCreateApi(BaseModel):
+    studio_email: Optional[EmailStr]
     client_email: EmailStr
+    
+    price: float = Field(0.0, ge=0.0)
+    start_time: datetime
+    actual_session: Optional[int] = Field(1, ge=1)
+    scheduled_time: Optional[datetime]
+    description: Optional[str] = Field(None, max_length=255)
+    finished: Optional[bool] = False
 
 class SellCreate(SellBasic):
     client_id: UUID4
