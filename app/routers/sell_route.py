@@ -21,9 +21,19 @@ def create_sell(sell: schemas.SellCreateApi, db: Session = Depends(get_db), user
         db_client = crud.person.get_by_email(db=db, email=sell.client_email)
         exceptions = []
         studio_id = None
+
         if sell.studio_email:
             db_studio = crud.studio.get_by_email_studio(db=db, email=sell.studio_email)
             studio_id = db_studio.id
+
+            connection = crud.studio_service_provider.has_connection(
+                db=db,
+                service_provider_id=user["service_provider_id"],
+                studio_id=studio_id)
+            
+            if not connection:
+                raise HTTPException(status_code=404, detail=f"You dont have connection with this studio")
+
             if not db_studio:
                 exceptions.append("studio")
 
