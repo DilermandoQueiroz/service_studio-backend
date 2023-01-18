@@ -4,7 +4,7 @@ import app.crud as crud
 from app.firebase_utils import create_studio, get_user_by_uid
 import app.schemas as schemas
 from app.custom_logger import custom_logger
-from .dependencies import get_db, validate_token_client
+from .dependencies import get_db, validate_token_client, is_owner_studio
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
@@ -43,6 +43,15 @@ def remove_studio_by_id(id: str = None, db: Session = Depends(get_db)):
     if not response:
         raise HTTPException(status_code=400, detail="Studio not exists")
     
+    return response
+
+@router.get("/sells")
+def get_sell_in_studio(db: Session = Depends(get_db), studio_id = Depends(is_owner_studio)):
+    response = crud.sell.get_by_studio_id(db=db, id=studio_id)
+
+    if not response:
+        raise HTTPException(status_code=400, detail="Studio not exists")
+
     return response
 
 @router.get("/all")

@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from .base import CRUDBase
-from app.models import Sell, Person
+from app.models import Sell, Person, ServiceProvider
 from app.schemas import SellCreate, SellInDBBase, SellUpdate, SellInfo
 
 
@@ -16,6 +16,12 @@ class CRUDSell(CRUDBase[Sell, SellCreate, SellUpdate]):
             Person.display_name, Person.email
             ).join(Person.sell).filter(self.model.service_provider_id == id).all()
     
+    def get_by_studio_id(self, db: Session, id: str):
+        return db.query(
+            self.model,
+            Person.display_name, Person.email
+            ).join(Person.sell).filter(self.model.studio_id == id).all()
+
     def get_next_sells(self, db: Session, id: str) -> SellInfo:
         current_time = datetime.datetime.utcnow()
 
