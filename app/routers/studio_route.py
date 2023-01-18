@@ -54,6 +54,15 @@ def get_sell_in_studio(db: Session = Depends(get_db), studio_id = Depends(is_own
 
     return response
 
+@router.get("/clients")
+def get_sell_in_studio(db: Session = Depends(get_db), studio_id = Depends(is_owner_studio)):
+    response = crud.studio.get_clients(db=db, id=studio_id)
+
+    if not response:
+        raise HTTPException(status_code=400, detail="Studio not exists")
+
+    return response
+
 @router.get("/all")
 def read_studios(db: Session = Depends(get_db)):
     return crud.studio.get_all(db)
